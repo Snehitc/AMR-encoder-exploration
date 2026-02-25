@@ -31,7 +31,18 @@ bash scripts/eval.sh
 ## Citation
 If you find this code useful for your research, please cite this repo:
 ```
+@misc{dcase2026baseline_task6,
+  author = {Taichi Nishimura},
+  title = {dcase2026_task6_baseline},
+  year = {2026},
+  publisher = {GitHub},
+  howpublished = {\url{https://github.com/awkrail/dcase2026_task6_baseline}}
+}
 ```
+
+## Others
+This code is based on [lighthouse](https://github.com/line/lighthouse).
+
 
 ## Contact
 taichitary@gmail.com

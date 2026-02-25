@@ -25,13 +25,10 @@ import copy
 from lighthouse.common.utils.basic_utils import mkdirp, load_json, save_json, make_zipfile, dict_to_markdown
 from easydict import EasyDict
 
+
 class BaseOptions(object):
-    def __init__(self, model, dataset, feature, resume, domain):
-        self.model = model
-        self.dataset = dataset
-        self.feature = feature
-        self.resume = resume
-        self.domain = domain
+    def __init__(self, feature_dir):
+        self.feature_dir = feature_dir
         self.opt = {}
 
     @property
@@ -74,69 +71,12 @@ class BaseOptions(object):
         a_feat_types = None
         t_feat_dir_pretrain_eval = None
 
-        if self.dataset == 'qvhighlight_pretrain':
-            
-            dataset = self.dataset.replace('_pretrain', '')
+        a_feat_dirs = [f'features/{self.dataset}/clap']
+        a_feat_types = self.opt.a_feat_types
+        t_feat_dir = f'features/{self.dataset}/clap_text'
+        import ipdb; ipdb.set_trace()
 
-            if self.feature == 'clip_slowfast_pann':
-                v_feat_dirs = [f'features/{dataset}/clip', f'features/{dataset}/slowfast']
-                t_feat_dir = f'features/{dataset}/clip_text_subs_train'
-                t_feat_dir_pretrain_eval = f'features/{dataset}/clip_text'
-                a_feat_dirs = [f'features/{dataset}/pann']
-                a_feat_types = self.opt.a_feat_types
-                
-            elif self.feature == 'clip_slowfast':
-                v_feat_dirs = [f'features/{dataset}/clip', f'features/{dataset}/slowfast']
-                t_feat_dir = f'features/{dataset}/clip_text_subs_train'
-                t_feat_dir_pretrain_eval = f'features/{dataset}/clip_text'
-
-            elif self.feature == 'clip':
-                v_feat_dirs = [f'features/{dataset}/clip']
-                t_feat_dir = f'features/{dataset}/clip_text_subs_train'
-                t_feat_dir_pretrain_eval = f'features/{dataset}/clip_text'
-
-            else:
-                raise ValueError(f'For pre-train, features should include CLIP, but {self.feature} is used.')
-        
-        else:
-            if self.feature == 'clip_slowfast_pann':
-                v_feat_dirs = [f'features/{self.dataset}/clip', f'features/{self.dataset}/slowfast']
-                t_feat_dir = f'features/{self.dataset}/clip_text'
-                a_feat_dirs = [f'features/{self.dataset}/pann']
-                a_feat_types = self.opt.a_feat_types
-                
-            elif self.feature == 'clip_slowfast':
-                v_feat_dirs = [f'features/{self.dataset}/clip', f'features/{self.dataset}/slowfast']
-                t_feat_dir = f'features/{self.dataset}/clip_text'
-
-            elif self.feature == 'clip':
-                v_feat_dirs = [f'features/{self.dataset}/clip']
-                t_feat_dir = f'features/{self.dataset}/clip_text'
-
-            elif self.feature == 'resnet_glove':
-                v_feat_dirs = [f'features/{self.dataset}/resnet']
-                t_feat_dir = f'features/{self.dataset}/glove'
-
-            elif self.feature == 'i3d_clip':
-                v_feat_dirs = [f'features/{self.dataset}/i3d']
-                t_feat_dir = f'features/{self.dataset}/clip_text'
-
-            elif self.feature == 'clap':
-                a_feat_dirs = [f'features/{self.dataset}/clap']
-                a_feat_types = self.opt.a_feat_types
-                t_feat_dir = f'features/{self.dataset}/clap_text'
-
-        self.opt.v_feat_dirs = v_feat_dirs
         self.opt.t_feat_dir = t_feat_dir
         self.opt.a_feat_dirs = a_feat_dirs
         self.opt.a_feat_types = a_feat_types
         self.opt.t_feat_dir_pretrain_eval = t_feat_dir_pretrain_eval
-
-    def clean_and_makedirs(self):
-        if 'results_dir' not in self.opt:
-            raise RuntimeError('results_dir is not set in self.opt. Did you run parse()?')
-        
-        if os.path.exists(self.opt.results_dir):
-            shutil.rmtree(self.opt.results_dir)
-
-        os.makedirs(self.opt.results_dir, exist_ok=True)

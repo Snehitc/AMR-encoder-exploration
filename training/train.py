@@ -1,40 +1,3 @@
-"""
-Copyright $today.year LY Corporation
-
-LY Corporation licenses this file to you under the Apache License,
-version 2.0 (the "License"); you may not use this file except in compliance
-with the License. You may obtain a copy of the License at:
-
-  https://www.apache.org/licenses/LICENSE-2.0
-
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
-WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
-License for the specific language governing permissions and limitations
-under the License.
-
-Moment-DETR (https://github.com/jayleicn/moment_detr)
-Copyright (c) 2021 Jie Lei
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
-"""
-
 import os
 import time
 import json
@@ -234,79 +197,28 @@ def main(opt, resume=None, domain=None):
         load_labels=True,
     )
 
-    train_dataset = CGDETR_StartEndDataset(**dataset_config) if opt.model_name == 'cg_detr' else StartEndDataset(**dataset_config)    
+    train_dataset = StartEndDataset(**dataset_config)    
     copied_eval_config = copy.deepcopy(dataset_config)
     copied_eval_config.data_path = opt.eval_path
     copied_eval_config.q_feat_dir = opt.t_feat_dir_pretrain_eval if opt.t_feat_dir_pretrain_eval is not None else opt.t_feat_dir
-    eval_dataset = CGDETR_StartEndDataset(**copied_eval_config) if opt.model_name == 'cg_detr' else StartEndDataset(**copied_eval_config)
+    eval_dataset = StartEndDataset(**copied_eval_config)
     
     # prepare model
     model, criterion, optimizer, lr_scheduler = setup_model(opt)
+
     logger.info(f"Model {model}")
-    
-    # load checkpoint for QVHighlight pretrain -> finetune
-    if resume is not None:
-        checkpoint = torch.load(resume, weights_only=False)
-        model.load_state_dict(checkpoint["model"])
-        logger.info("Loaded model checkpoint: {}".format(resume))
-    
-    count_parameters(model)
     logger.info("Start Training...")
     
     # start training
     train(model, criterion, optimizer, lr_scheduler, train_dataset, eval_dataset, opt)
 
 
-def check_valid_combination(dataset, feature, domain):
-    dataset_feature_map = {
-        'qvhighlight': ['resnet_glove', 'clip', 'clip_slowfast', 'clip_slowfast_pann'],
-        'qvhighlight_pretrain': ['resnet_glove', 'clip', 'clip_slowfast', 'clip_slowfast_pann'],
-        'activitynet': ['resnet_glove', 'clip', 'clip_slowfast'],
-        'charades': ['resnet_glove', 'clip', 'clip_slowfast'],
-        'tacos': ['resnet_glove', 'clip', 'clip_slowfast'],
-        'tvsum': ['resnet_glove', 'clip', 'clip_slowfast', 'i3d_clip'],
-        'youtube_highlight': ['clip', 'clip_slowfast'],
-        'clotho-moment': ['clap'],
-        'castella': ['clap'],
-    }
-
-    domain_map = {
-        'tvsum': ['BK', 'BT', 'DS', 'FM', 'GA', 'MS', 'PK', 'PR', 'VT', 'VU'],
-        'youtube_highlight': ['dog', 'gymnastics', 'parkour', 'skating', 'skiing', 'surfing'],
-    }
-
-    if dataset in domain_map:
-        return feature in dataset_feature_map[dataset] and domain in domain_map[dataset]
-    else:
-        return feature in dataset_feature_map[dataset]
-
-
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('--model', '-m', type=str, required=True, 
-                        choices=['moment_detr', 'qd_detr', 'eatr', 'cg_detr', 'uvcom', 'tr_detr', 'taskweave_hd2mr', 'taskweave_mr2hd'],
-                        help='model name. select from [moment_detr, qd_detr, eatr, cg_detr, uvcom, tr_detr, taskweave_hd2mr, taskweave_mr2hd]')
-    parser.add_argument('--dataset', '-d', type=str, required=True,
-                        choices=['activitynet', 'charades', 'qvhighlight', 'qvhighlight_pretrain', 'tacos', 'tvsum', 'youtube_highlight', 'clotho-moment', 'castella'],
-                        help='dataset name. select from [activitynet, charades, qvhighlight, qvhighlight_pretrain, tacos, tvsum, youtube_highlight, clotho-moment, castella]')
-    parser.add_argument('--feature', '-f', type=str, required=True,
-                        choices=['resnet_glove', 'clip', 'clip_slowfast', 'clip_slowfast_pann', 'i3d_clip', 'clap'],
-                        help='feature name. select from [resnet_glove, clip, clip_slowfast, clip_slowfast_pann, i3d_clip, clap].'
-                             'NOTE: i3d_clip and clip_slowfast_pann are only for TVSum and QVHighlight, respectively.')
-    parser.add_argument('--resume', '-r', type=str, help='specify model path for fine-tuning. If None, train the model from scratch.')
-    parser.add_argument('--domain', '-dm', type=str,
-                        choices=['BK', 'BT', 'DS', 'FM', 'GA', 'MS', 'PK', 'PR', 'VT', 'VU',
-                                 'dog', 'gymnastics', 'parkour', 'skating', 'skiing', 'surfing'],
-                        help='domain for highlight detection dataset (e.g., BK for TVSum, dog for YouTube Highlight).')
+    parser.add_argument('--feature_dir', '-f', type=str, required=True, help='feature dir')
     args = parser.parse_args()
-
-    is_valid = check_valid_combination(args.dataset, args.feature, args.domain)
-
-    if is_valid:
-        option_manager = BaseOptions(args.model, args.dataset, args.feature, args.resume, args.domain)
-        option_manager.parse()
-        option_manager.clean_and_makedirs()
-        opt = option_manager.option
-        main(opt, resume=args.resume, domain=args.domain)
-    else:
-        raise ValueError('The combination of dataset, feature, and domain is invalid: dataset={}, feature={}, domain={}'.format(args.dataset, args.feature, args.domain))
+    option_manager = BaseOptions(args.feature_dir)
+    option_manager.parse()
+    option_manager.clean_and_makedirs()
+    opt = option_manager.option
+    main(opt, resume=args.resume, domain=args.domain)
