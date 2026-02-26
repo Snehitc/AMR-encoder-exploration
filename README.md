@@ -15,6 +15,8 @@ pip install -r requirement.txt
 2. Prepare feature files
 Download [CASTELLA dataset](https://zenodo.org/records/17412176).
 ```
+wget https://zenodo.org/records/17412176/files/features.tar.gz
+tar -zxvf features.tar.gz
 ```
 
 ## Training and evaluation
