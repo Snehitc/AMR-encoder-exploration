@@ -269,30 +269,11 @@ def eval_epoch(epoch_i, model, eval_dataset, opt, save_submission_filename, crit
             submission, opt, eval_dataset.data, save_submission_filename)
         return metrics, eval_loss_meters, latest_file_paths
 
-def build_model(opt):
-    if opt.model_name == 'qd_detr':
-        model, criterion = build_model_qd_detr(opt)
-    elif opt.model_name == 'moment_detr':
-        model, criterion = build_model_moment_detr(opt)
-    elif opt.model_name == 'cg_detr':
-        model, criterion = build_model_cg_detr(opt)
-    elif opt.model_name == 'eatr':
-        model, criterion = build_model_eatr(opt)
-    elif opt.model_name == 'tr_detr':
-        model, criterion = build_model_tr_detr(opt)
-    elif opt.model_name == 'uvcom':
-        model, criterion = build_model_uvcom(opt)
-    elif opt.model_name == 'taskweave':
-        model, criterion = build_model_task_weave(opt)
-    else:
-        raise NotImplementedError
-    
-    return model, criterion
 
 def setup_model(opt):
     """setup model/optimizer/scheduler and load checkpoints when needed"""
     logger.info("setup model/optimizer/scheduler")
-    model, criterion = build_model(opt)
+    model, criterion = build_model_qd_detr(opt)
 
     if opt.device == "cuda":
         logger.info("CUDA enabled.")

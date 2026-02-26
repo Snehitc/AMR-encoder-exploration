@@ -64,9 +64,7 @@ class StartEndDataset(Dataset):
         self.max_windows = max_windows  # maximum number of windows to use as labels
         self.span_loss_type = span_loss_type
         self.load_labels = load_labels
-        # data
         self.data = self.load_data()
-        import ipdb; ipdb.set_trace()
 
 
     def load_data(self):
@@ -80,75 +78,19 @@ class StartEndDataset(Dataset):
         meta = self.data[index]
 
         model_inputs = dict()
-
-        if self.use_glove:
-            model_inputs["query_feat"] = self.get_query(meta["query"])
-        else:
-            model_inputs["query_feat"] = self._get_query_feat_by_qid(meta["qid"])  # (Dq, ) or (Lq, Dq)
-
-        if self.use_video:
-            model_inputs["video_feat"] = self._get_video_feat_by_vid(meta["vid"])  # (Lv, Dv)
-            ctx_l = len(model_inputs["video_feat"])
-        else:
-            ctx_l = self.max_v_l
-
-        if self.use_audio:
-            assert self.a_feat_types is not None, f"use_audio is {self.use_audio}, but a_feat_types is {self.a_feat_types}."
-            model_inputs["audio_feat"] = self._get_audio_feat_by_vid(meta["vid"])
-            ctx_l_a = len(model_inputs["audio_feat"])
-            # Sometimes, audio features is longer than video features because the length of video is not necessarily 2:30.
-            if ctx_l < ctx_l_a:
-                model_inputs["audio_feat"] = model_inputs["audio_feat"][:ctx_l]
-                ctx_l_a = ctx_l
-            elif ctx_l > ctx_l_a:
-                if self.use_video:
-                    model_inputs["video_feat"] = model_inputs["video_feat"][:ctx_l_a] # TODO: Sometimes, audio length is not equal to video length.
-                ctx_l = ctx_l_a
-        else:
-            ctx_l_a = self.max_a_l
+        model_inputs["query_feat"] = self._get_query_feat_by_qid(meta["qid"])  # (Dq, ) or (Lq, Dq)
+        model_inputs["audio_feat"] = self._get_audio_feat_by_vid(meta["vid"])
+        ctx_l = len(model_inputs["audio_feat"])
 
         if self.use_tef:
             tef_st = torch.arange(0, ctx_l, 1.0) / ctx_l
             tef_ed = tef_st + 1.0 / ctx_l
             tef = torch.stack([tef_st, tef_ed], dim=1)  # (Lv, 2)
-            if self.use_video:
-                model_inputs["video_feat"] = torch.cat(
-                    [model_inputs["video_feat"], tef], dim=1)  # (Lv, Dv+2)
-            else:
-                model_inputs["video_feat"] = tef
+            model_inputs["audio_feat"] = torch.cat([model_inputs["audio_feat"], tef], dim=1)
 
         if self.load_labels:
-            if self.dset_name == 'tvsum':
-                model_inputs["span_labels"] = torch.tensor([[0., 0.]])
-                meta_label = meta["label"]
-                model_inputs["saliency_pos_labels"], model_inputs["saliency_neg_labels"], model_inputs["saliency_all_labels"] = \
-                            self.get_saliency_labels_all_tvsum(meta_label, ctx_l)
-                if len(model_inputs["saliency_all_labels"]) != len(model_inputs["video_feat"]):
-                    model_inputs["video_feat"] = model_inputs["video_feat"][:len(model_inputs["saliency_all_labels"])]
-            
-            elif self.dset_name == 'youtube_highlight':
-                model_inputs["span_labels"] = torch.tensor([[0., 0.]])
-                meta_label = meta['label']
-                model_inputs["saliency_pos_labels"], model_inputs["saliency_neg_labels"], model_inputs["saliency_all_labels"] = \
-                            self.get_saliency_labels_all_youtube(meta_label, ctx_l)
-            
-            else:
-                model_inputs["span_labels"] = self.get_span_labels(meta["relevant_windows"], ctx_l)
-                model_inputs["pos_mask"] = self.get_pos_mask(meta, ctx_l) # necessary for TR-DETR. If you dont use it, ignore.
-
-                if 'qvhighlight' in self.dset_name:
-                    if "subs_train" in self.data_path: # for pretraining
-                        model_inputs["saliency_pos_labels"], model_inputs["saliency_neg_labels"], model_inputs["saliency_all_labels"] = \
-                            self.get_saliency_labels_sub_as_query(meta["relevant_windows"][0], ctx_l)
-                    else:
-                        model_inputs["saliency_pos_labels"], model_inputs["saliency_neg_labels"], model_inputs["saliency_all_labels"] = \
-                            self.get_saliency_labels_all(meta["relevant_clip_ids"], meta["saliency_scores"], ctx_l)                        
-                
-                elif self.dset_name in ['charades', 'tacos', 'activitynet', 'clotho-moment', 'unav100-subset', 'tut2017', 'castella']:
-                    model_inputs["saliency_pos_labels"], model_inputs["saliency_neg_labels"], model_inputs["saliency_all_labels"] = \
-                        self.get_saliency_labels_sub_as_query(meta["relevant_windows"][0], ctx_l)
-                else:
-                    raise NotImplementedError
+            model_inputs["span_labels"] = self.get_span_labels(meta["relevant_windows"], ctx_l)
+            model_inputs["saliency_pos_labels"], model_inputs["saliency_neg_labels"], model_inputs["saliency_all_labels"] = self.get_saliency_labels_sub_as_query(meta["relevant_windows"][0], ctx_l)
 
         return dict(meta=meta, model_inputs=model_inputs)
 
@@ -351,83 +293,16 @@ class StartEndDataset(Dataset):
             raise NotImplementedError
         return windows
 
-    def get_query(self, query):
-        word_inds = torch.LongTensor(
-            [self.vocab.stoi.get(w.lower(), 400000) for w in query.split()])
-        return self.embedding(word_inds)
-
     def _get_query_feat_by_qid(self, qid):
-        if self.dset_name == 'tvsum' or self.dset_name == 'youtube_highlight':
-            q_feat_path = join(self.q_feat_dir, f"{qid}.npz")
-            q_feat = np.load(q_feat_path)
-            return torch.from_numpy(q_feat['token']) if self.dset_name == 'tvsum' else torch.from_numpy(q_feat['last_hidden_state'])
+        q_feat_path = join(self.q_feat_dir, f"qid{qid}.npz")
+        q_feat = np.load(q_feat_path)['last_hidden_state']
+        return q_feat
 
-        else:
-            if self.dset_name == 'tacos':
-                q_feat_path = join(self.q_feat_dir, f"{qid}.npz")
-            elif "subs_train" in self.data_path: # for pretrain
-                vid = "_".join(qid.split("_")[:-1])
-                subid = qid.split("_")[-1]
-                q_feat_path = join(self.q_feat_dir, f"{vid}/{subid}.npz")
-            else:
-                q_feat_path = join(self.q_feat_dir, f"qid{qid}.npz")
-
-            q_feat = np.load(q_feat_path)[self.q_feat_type].astype(np.float32)
-            if self.q_feat_type == "last_hidden_state":
-                q_feat = q_feat[:self.max_q_l]
-            q_feat = l2_normalize_np_array(q_feat)
-            return torch.from_numpy(q_feat)  # (D, ) or (Lq, D)
-
-    def _get_video_feat_by_vid(self, vid):
-        v_feat_list = []
-        for _feat_dir in self.v_feat_dirs:
-            if self.dset_name == 'tvsum' and 'i3d' in _feat_dir:
-                rgb_path = join(_feat_dir, f"{vid}_rgb.npy")
-                opt_path = join(_feat_dir, f"{vid}_opt.npy")
-                rgb_feat = np.load(rgb_path)[:self.max_v_l].astype(np.float32)
-                opt_feat = np.load(opt_path)[:self.max_v_l].astype(np.float32)
-                _feat = np.concatenate([rgb_feat, opt_feat], axis=-1)
-                _feat = l2_normalize_np_array(_feat) # normalize?
-                v_feat_list.append(_feat)
-            else:
-                _feat_path = join(_feat_dir, f"{vid}.npz")
-                _feat = np.load(_feat_path)["features"][:self.max_v_l].astype(np.float32)
-                _feat = l2_normalize_np_array(_feat)
-                v_feat_list.append(_feat)
-        
-        # some features are slightly longer than the others
-        min_len = min([len(e) for e in v_feat_list])
-        v_feat_list = [e[:min_len] for e in v_feat_list]
-        v_feat = np.concatenate(v_feat_list, axis=1)
-        return torch.from_numpy(v_feat)  # (Lv, D)
-    
     def _get_audio_feat_by_vid(self, vid):
-        a_feat_list = []
-        for _feat_dir in self.a_feat_dirs:
-            if self.dset_name == 'qvhighlight' or self.dset_name == 'qvhighlight_pretrain':
-                if self.a_feat_types == "pann":
-                    _feat_path = join(_feat_dir, f"{vid}.npy")
-                    _feat = np.load(_feat_path)[:self.max_a_l].astype(np.float32)
-                else:
-                    raise NotImplementedError
-                _feat = l2_normalize_np_array(_feat) # normalize?
-                a_feat_list.append(_feat)
-            elif self.dset_name in ['clotho-moment', 'unav100-subset', 'tut2017', 'castella']:
-                if self.a_feat_types == "clap":
-                    _feat_path = join(_feat_dir, f"{vid}.npz")
-                    _feat = np.load(_feat_path)["features"][:self.max_a_l].astype(np.float32)
-                else:
-                    raise NotImplementedError
-                _feat = l2_normalize_np_array(_feat) # normalize?
-                a_feat_list.append(_feat)
-            else:
-                raise NotImplementedError
-        
-        # some features are slightly longer than the others
-        min_len = min([len(e) for e in a_feat_list])
-        a_feat_list = [e[:min_len] for e in a_feat_list]
-        a_feat = np.concatenate(a_feat_list, axis=1)
-        return torch.from_numpy(a_feat)  # (Lv, D)
+        _feat_path = join(self.a_feat_dir, f"{vid}.npz")
+        _feat = np.load(_feat_path)["features"][:self.max_a_l].astype(np.float32)
+        _feat = l2_normalize_np_array(_feat)
+        return torch.from_numpy(_feat)
 
 
 def start_end_collate(batch):
@@ -447,6 +322,7 @@ def start_end_collate(batch):
             batched_data[k] = torch.tensor(pad_data, dtype=torch.float32)
             continue
 
+        import ipdb; ipdb.set_trace()
         batched_data[k] = pad_sequences_1d(
             [e["model_inputs"][k] for e in batch], dtype=torch.float32, fixed_length=None)
     return batch_meta, batched_data
@@ -460,6 +336,7 @@ def prepare_batch_inputs(batched_model_inputs, device, non_blocking=False):
         src_vid_mask=batched_model_inputs["video_feat"][1].to(device, non_blocking=non_blocking),
     )
     
+    import ipdb; ipdb.set_trace()
     if "audio_feat" in batched_model_inputs:
         model_inputs["src_aud"] = batched_model_inputs["audio_feat"][0].to(device, non_blocking=non_blocking)
         model_inputs["src_aud_mask"] = batched_model_inputs["audio_feat"][1].to(device, non_blocking=non_blocking)
@@ -476,10 +353,6 @@ def prepare_batch_inputs(batched_model_inputs, device, non_blocking=False):
 
     if "saliency_all_labels" in batched_model_inputs:
         targets["saliency_all_labels"] = batched_model_inputs["saliency_all_labels"].to(device, non_blocking=non_blocking)
-
-    # only for TR-DETR
-    if "pos_mask" in batched_model_inputs:
-        targets['src_pos_mask']=batched_model_inputs["pos_mask"][0].to(device, non_blocking=non_blocking)
 
     targets = None if len(targets) == 0 else targets
     return model_inputs, targets

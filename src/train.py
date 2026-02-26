@@ -40,7 +40,14 @@ def set_seed(seed, use_cuda=True):
         torch.cuda.manual_seed_all(seed)
 
 
-def train_epoch(model, criterion, train_loader, optimizer, opt, epoch_i):
+def train_epoch(
+        model,
+        criterion, 
+        train_loader, 
+        optimizer, 
+        opt, 
+        epoch_i
+    ):
     logger.info(f"[Epoch {epoch_i+1}]")
     model.train()
     criterion.train()
@@ -54,6 +61,7 @@ def train_epoch(model, criterion, train_loader, optimizer, opt, epoch_i):
                                  desc="Training Iteration",
                                  total=num_training_examples):
         model_inputs, targets = prepare_batch_inputs(batch[1], opt.device)
+        import ipdb; ipdb.set_trace()
 
         outputs = model(**model_inputs, targets=targets) if opt.model_name == 'cg_detr' else model(**model_inputs)
         loss_dict = criterion(outputs, targets)
@@ -73,15 +81,22 @@ def train_epoch(model, criterion, train_loader, optimizer, opt, epoch_i):
     write_log(opt, epoch_i, loss_meters)
 
 
-def train(model, criterion, optimizer, lr_scheduler, train_dataset, val_dataset, opt):
+def train(
+        model,
+        criterion,
+        optimizer,
+        lr_scheduler,
+        train_dataset, 
+        val_dataset, 
+        opt
+    ):
     opt.train_log_txt_formatter = "{time_str} [Epoch] {epoch:03d} [Loss] {loss_str}\n"
     opt.eval_log_txt_formatter = "{time_str} [Epoch] {epoch:03d} [Loss] {loss_str} [Metrics] {eval_metrics_str}\n"
-    collate_fn = cg_detr_start_end_collate if opt.model_name == 'cg_detr' else start_end_collate
     save_submission_filename = "latest_{}_val_preds.jsonl".format(opt.dset_name)
 
     train_loader = DataLoader(
         train_dataset,
-        collate_fn=collate_fn,
+        collate_fn=start_end_collate,
         batch_size=opt.bsz,
         num_workers=opt.num_workers,
         shuffle=True,
@@ -144,9 +159,8 @@ def main(opt):
     )
 
     train_dataset = StartEndDataset(**dataset_config)    
-    #copied_eval_config = copy.deepcopy(dataset_config)
-    #copied_eval_config.data_path = opt.eval_path
-    #copied_eval_config.q_feat_dir = opt.t_feat_dir_pretrain_eval if opt.t_feat_dir_pretrain_eval is not None else opt.t_feat_dir
+    copied_eval_config = copy.deepcopy(dataset_config)
+    copied_eval_config.data_path = opt.eval_path
     eval_dataset = StartEndDataset(**copied_eval_config)
     
     # prepare model
@@ -156,7 +170,15 @@ def main(opt):
     logger.info("Start Training...")
     
     # start training
-    train(model, criterion, optimizer, lr_scheduler, train_dataset, eval_dataset, opt)
+    train(
+        model,
+        criterion,
+        optimizer,
+        lr_scheduler, 
+        train_dataset, 
+        eval_dataset, 
+        opt
+    )
 
 
 if __name__ == '__main__':

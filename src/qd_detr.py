@@ -18,18 +18,27 @@ def inverse_sigmoid(x, eps=1e-3):
 
 
 class QDDETR(nn.Module):
-    """ QD DETR. """
-
-    def __init__(self, transformer, position_embed, txt_position_embed, txt_dim, vid_dim,
-                 num_queries, input_dropout, aux_loss=True, max_v_l=75, span_loss_type="l1", 
-                 use_txt_pos=False, n_input_proj=2, aud_dim=0):
+    def __init__(
+        self,
+        transformer,
+        position_embed,
+        txt_position_embed,
+        aud_dim,
+        txt_dim,
+        num_queries,
+        input_dropout, 
+        max_a_l,
+        aux_loss=True,
+        span_loss_type="l1", 
+        use_txt_pos=False,
+        n_input_proj=2
+    ):
         """ Initializes the model.
         Parameters:
             transformer: torch module of the transformer architecture. See transformer.py
             position_embed: torch module of the position_embedding, See position_encoding.py
             txt_position_embed: position_embedding for text
             txt_dim: int, text query input dimension
-            vid_dim: int, video feature input dimension
             num_queries: number of object queries, ie detection slot. This is the maximal number of objects
                          QD-DETR can detect in a single video.
             aux_loss: True if auxiliary decoding losses (loss at each decoder layer) are to be used.
@@ -47,8 +56,8 @@ class QDDETR(nn.Module):
         self.txt_position_embed = txt_position_embed
         hidden_dim = transformer.d_model
         self.span_loss_type = span_loss_type
-        self.max_v_l = max_v_l
-        span_pred_dim = 2 if span_loss_type == "l1" else max_v_l * 2
+        self.max_a_l = max_a_l
+        span_pred_dim = 2
         self.span_embed = MLP(hidden_dim, hidden_dim, span_pred_dim, 3)
         self.class_embed = nn.Linear(hidden_dim, 2)  # 0: background, 1: foreground
         self.use_txt_pos = use_txt_pos
@@ -56,13 +65,14 @@ class QDDETR(nn.Module):
         self.query_embed = nn.Embedding(num_queries, 2)
         relu_args = [True] * 3
         relu_args[n_input_proj-1] = False
+
         self.input_txt_proj = nn.Sequential(*[
             LinearLayer(txt_dim, hidden_dim, layer_norm=True, dropout=input_dropout, relu=relu_args[0]),
             LinearLayer(hidden_dim, hidden_dim, layer_norm=True, dropout=input_dropout, relu=relu_args[1]),
             LinearLayer(hidden_dim, hidden_dim, layer_norm=True, dropout=input_dropout, relu=relu_args[2])
         ][:n_input_proj])
-        self.input_vid_proj = nn.Sequential(*[
-            LinearLayer(vid_dim + aud_dim, hidden_dim, layer_norm=True, dropout=input_dropout, relu=relu_args[0]),
+        self.input_aud_proj = nn.Sequential(*[
+            LinearLayer(aud_dim, hidden_dim, layer_norm=True, dropout=input_dropout, relu=relu_args[0]),
             LinearLayer(hidden_dim, hidden_dim, layer_norm=True, dropout=input_dropout, relu=relu_args[1]),
             LinearLayer(hidden_dim, hidden_dim, layer_norm=True, dropout=input_dropout, relu=relu_args[2])
         ][:n_input_proj])
@@ -74,6 +84,7 @@ class QDDETR(nn.Module):
         self.hidden_dim = hidden_dim
         self.global_rep_token = torch.nn.Parameter(torch.randn(hidden_dim))
         self.global_rep_pos = torch.nn.Parameter(torch.randn(hidden_dim))
+
 
     def forward(self, src_txt, src_txt_mask, src_vid, src_vid_mask, src_aud=None, src_aud_mask=None):
         """The forward expects two tensors:
@@ -163,8 +174,16 @@ class SetCriterion(nn.Module):
         2) we supervise each pair of matched ground-truth / prediction (supervise class and box)
     """
 
-    def __init__(self, matcher, weight_dict, eos_coef, losses, 
-                 span_loss_type, max_v_l, saliency_margin=1):
+    def __init__(
+        self,
+        matcher,
+        weight_dict,
+        eos_coef,
+        losses, 
+        span_loss_type,
+        max_a_l,
+        saliency_margin=1
+    ):
         """ Create the criterion.
         Parameters:
             matcher: module able to compute a matching between targets and proposals
@@ -180,7 +199,7 @@ class SetCriterion(nn.Module):
         self.weight_dict = weight_dict
         self.losses = losses
         self.span_loss_type = span_loss_type
-        self.max_v_l = max_v_l
+        self.max_a_l = max_a_l
         self.saliency_margin = saliency_margin
 
         # foreground and background classification
@@ -419,9 +438,9 @@ def build_model(args):
         transformer,
         position_embedding,
         txt_position_embedding,
+        max_a_l=args.max_a_l,
         txt_dim=args.t_feat_dim,
-        vid_dim=args.v_feat_dim,
-        aud_dim=args.a_feat_dim if "a_feat_dim" in args else 0,
+        aud_dim=args.a_feat_dim,
         aux_loss=args.aux_loss,
         num_queries=args.num_queries,
         input_dropout=args.input_dropout,
@@ -430,10 +449,12 @@ def build_model(args):
     )
 
     matcher = build_matcher(args)
-    weight_dict = {"loss_span": args.span_loss_coef,
-                   "loss_giou": args.giou_loss_coef,
-                   "loss_label": args.label_loss_coef,
-                   "loss_saliency": args.lw_saliency}
+    weight_dict = {
+        "loss_span": args.span_loss_coef,
+        "loss_giou": args.giou_loss_coef,
+        "loss_label": args.label_loss_coef,
+        "loss_saliency": args.lw_saliency
+    }
 
     if args.aux_loss:
         aux_weight_dict = {}
@@ -443,9 +464,13 @@ def build_model(args):
 
     losses = ['spans', 'labels', 'saliency']
     criterion = SetCriterion(
-        matcher=matcher, weight_dict=weight_dict, losses=losses,
-        eos_coef=args.eos_coef, span_loss_type=args.span_loss_type, 
-        max_v_l=args.max_v_l, saliency_margin=args.saliency_margin,
+        matcher=matcher,
+        weight_dict=weight_dict,
+        losses=losses,
+        eos_coef=args.eos_coef,
+        span_loss_type=args.span_loss_type, 
+        max_a_l=args.max_a_l,
+        saliency_margin=args.saliency_margin,
     )
     criterion.to(device)
     return model, criterion
