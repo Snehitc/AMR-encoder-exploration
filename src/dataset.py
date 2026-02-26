@@ -6,10 +6,10 @@ from tqdm import tqdm
 import random
 import logging
 from os.path import join, exists
-from lighthouse.common import vocab
-from lighthouse.common.utils.basic_utils import load_jsonl, l2_normalize_np_array
-from lighthouse.common.utils.tensor_utils import pad_sequences_1d
-from lighthouse.common.utils.span_utils import span_xx_to_cxw
+from vocab import Vocab
+from basic_utils import load_jsonl, l2_normalize_np_array
+from tensor_utils import pad_sequences_1d
+from span_utils import span_xx_to_cxw
 import torch.nn as nn
 
 
@@ -27,59 +27,46 @@ class StartEndDataset(Dataset):
       "relevant_windows": [[26, 36]]
     }
     """
-    def __init__(self, dset_name, domain, data_path, v_feat_dirs, a_feat_dirs, q_feat_dir,
-                 q_feat_type="last_hidden_state", v_feat_types="clip", a_feat_types="pann", 
-                 max_q_l=32, max_v_l=75, max_a_l=75, ctx_mode="video", clip_len=2,
-                 max_windows=5, span_loss_type="l1", load_labels=True):
-        self.dset_name = dset_name
-        self.domain = domain
+    def __init__(
+        self,
+        data_path,
+        a_feat_dir,
+        q_feat_dir,
+        q_feat_type="last_hidden_state",
+        a_feat_type="pann",
+        max_q_l=32,
+        max_a_l=75,
+        ctx_mode="video",
+        clip_len=2,
+        max_windows=5,
+        span_loss_type="l1",
+        load_labels=True
+    ):
         self.data_path = data_path
-        self.v_feat_dirs = v_feat_dirs \
-            if isinstance(v_feat_dirs, list) else [v_feat_dirs]
-        self.a_feat_dirs = a_feat_dirs \
-            if isinstance(a_feat_dirs, list) else [a_feat_dirs]
+        self.a_feat_dir = a_feat_dir
         self.q_feat_dir = q_feat_dir
         self.q_feat_type = q_feat_type
-        self.v_feat_types = v_feat_types
-        self.a_feat_types = a_feat_types
+        self.a_feat_type = a_feat_type
         
-        if max_v_l == -1:
-            max_v_l = 100000000
         if max_a_l == -1:
             max_a_l = 100000000
+
         if max_q_l == -1:
             max_q_l = 100
+
         self.max_q_l = max_q_l
-        self.max_v_l = max_v_l
         self.max_a_l = max_a_l
         
         self.ctx_mode = ctx_mode
         self.use_tef = "tef" in ctx_mode
-        self.use_video = "video" in ctx_mode
         self.use_audio = "audio" in ctx_mode
         self.clip_len = clip_len
         self.max_windows = max_windows  # maximum number of windows to use as labels
         self.span_loss_type = span_loss_type
         self.load_labels = load_labels
-
         # data
         self.data = self.load_data()
-
-        if self.dset_name == 'tvsum' or self.dset_name == 'youtube_highlight':
-            new_data = []
-            for d in self.data:
-                if d['domain'] == self.domain:
-                    new_data.append(d)
-            self.data = new_data
-
-        self.use_glove = 'glove' in q_feat_dir
-        if self.use_glove:
-            self.vocab = vocab.pretrained_aliases['glove.6B.300d']()
-            self.vocab.itos.extend(['<unk>'])
-            self.vocab.stoi['<unk>'] = self.vocab.vectors.shape[0]
-            self.vocab.vectors = torch.cat(
-                (self.vocab.vectors, torch.zeros(1, self.vocab.dim)), dim=0)
-            self.embedding = nn.Embedding.from_pretrained(self.vocab.vectors)
+        import ipdb; ipdb.set_trace()
 
 
     def load_data(self):

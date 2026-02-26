@@ -20,14 +20,10 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 from config import BaseOptions
 from dataset import StartEndDataset, start_end_collate, prepare_batch_inputs
-from cg_detr_dataset import CGDETR_StartEndDataset, cg_detr_start_end_collate, cg_detr_prepare_batch_inputs
 from evaluate import eval_epoch, start_inference, setup_model
 
-from lighthouse.common.utils.basic_utils import AverageMeter, dict_to_markdown, write_log, save_checkpoint, rename_latest_to_best
-from lighthouse.common.utils.model_utils import count_parameters, ModelEMA
-
-from lighthouse.common.loss_func import VTCLoss
-from lighthouse.common.loss_func import CTC_Loss
+from basic_utils import AverageMeter, dict_to_markdown, write_log, save_checkpoint, rename_latest_to_best
+from model_utils import count_parameters, ModelEMA
 
 import logging
 logger = logging.getLogger(__name__)
@@ -44,39 +40,7 @@ def set_seed(seed, use_cuda=True):
         torch.cuda.manual_seed_all(seed)
 
 
-def additional_trdetr_losses(model_inputs, outputs, targets, opt):
-    # TR-DETR only loss
-    src_txt_mask,   src_vid_mask = model_inputs['src_txt_mask'], model_inputs['src_vid_mask']
-    pos_mask =  targets['src_pos_mask'] 
-
-    src_txt_ed, src_vid_ed =  outputs['src_txt_ed'], outputs['src_vid_ed']
-    loss_align = CTC_Loss()
-    loss_vid_txt_align = loss_align(src_vid_ed, src_txt_ed, pos_mask, src_vid_mask, src_txt_mask)
-
-    src_vid_cls_ed = outputs['src_vid_cls_ed']
-    src_txt_cls_ed = outputs['src_txt_cls_ed']
-    loss_align_VTC = VTCLoss()
-    loss_vid_txt_align_VTC = loss_align_VTC(src_txt_cls_ed, src_vid_cls_ed)
-
-    loss = opt.VTC_loss_coef * loss_vid_txt_align_VTC + opt.CTC_loss_coef * loss_vid_txt_align
-    return loss
-
-def calculate_taskweave_losses(loss_dict, weight_dict, hd_log_var, mr_log_var):
-    # TaskWeave only loss
-    grouped_losses = {"loss_mr": [], "loss_hd": []}
-    for k in loss_dict.keys():
-        if k in weight_dict:
-            if any(keyword in k for keyword in ["giou", "span", "label",'class_error']):
-                grouped_losses["loss_mr"].append(loss_dict[k])
-            elif "saliency" in k:
-                grouped_losses["loss_hd"].append(loss_dict[k])
-    loss_mr = sum(grouped_losses["loss_mr"])
-    loss_hd = sum(grouped_losses["loss_hd"])
-    losses = 2 * loss_hd * torch.exp(-hd_log_var) + 1 * loss_mr * torch.exp(-mr_log_var) + hd_log_var + mr_log_var
-    return losses
-
 def train_epoch(model, criterion, train_loader, optimizer, opt, epoch_i):
-    batch_input_fn = cg_detr_prepare_batch_inputs  if opt.model_name == 'cg_detr' else prepare_batch_inputs
     logger.info(f"[Epoch {epoch_i+1}]")
     model.train()
     criterion.train()
@@ -89,28 +53,15 @@ def train_epoch(model, criterion, train_loader, optimizer, opt, epoch_i):
     for batch_idx, batch in tqdm(enumerate(train_loader),
                                  desc="Training Iteration",
                                  total=num_training_examples):
-        model_inputs, targets = batch_input_fn(batch[1], opt.device)
-        
-        if opt.model_name == 'taskweave':
-            model_inputs['epoch_i'] = epoch_i # taskweave requires epoch number
-            outputs, [hd_log_var, mr_log_var] = model(**model_inputs)
-            loss_dict = criterion(outputs, targets)
-            losses = calculate_taskweave_losses(loss_dict, criterion.weight_dict, hd_log_var, mr_log_var)
-            optimizer.zero_grad()
-            losses.backward()
-        else:
-            outputs = model(**model_inputs, targets=targets) if opt.model_name == 'cg_detr' else model(**model_inputs)
-            loss_dict = criterion(outputs, targets)
-            losses = sum(loss_dict[k] * criterion.weight_dict[k] for k in loss_dict.keys() if k in criterion.weight_dict)
-            
-            if opt.model_name == 'tr_detr' \
-                and (opt.dset_name != 'tvsum' and opt.dset_name != 'youtube_highlight' 
-                    and opt.dset_name != 'qvhighlight_pretrain'):
-                losses += additional_trdetr_losses(model_inputs, outputs, targets, opt)
-            
-            optimizer.zero_grad()
-            losses.backward()
-        
+        model_inputs, targets = prepare_batch_inputs(batch[1], opt.device)
+
+        outputs = model(**model_inputs, targets=targets) if opt.model_name == 'cg_detr' else model(**model_inputs)
+        loss_dict = criterion(outputs, targets)
+        losses = sum(loss_dict[k] * criterion.weight_dict[k] for k in loss_dict.keys() if k in criterion.weight_dict)
+
+        optimizer.zero_grad()
+        losses.backward()
+
         if opt.grad_clip > 0:
             nn.utils.clip_grad_norm_(model.parameters(), opt.grad_clip)
         optimizer.step()
@@ -172,24 +123,19 @@ def train(model, criterion, optimizer, lr_scheduler, train_dataset, val_dataset,
                 rename_latest_to_best(latest_file_paths)
 
 
-def main(opt, resume=None, domain=None):
+def main(opt):
     logger.info("Setup config, data and model...")
     set_seed(opt.seed)
 
     # dataset & data loader
     dataset_config = EasyDict(
-        dset_name=opt.dset_name,
-        domain=domain,
         data_path=opt.train_path,
         ctx_mode=opt.ctx_mode,
-        v_feat_dirs=opt.v_feat_dirs,
-        a_feat_dirs=opt.a_feat_dirs,
+        a_feat_dir=opt.a_feat_dir,
         q_feat_dir=opt.t_feat_dir,
         q_feat_type="last_hidden_state",
-        v_feat_types=opt.v_feat_types,
-        a_feat_types=opt.a_feat_types,
+        a_feat_type=opt.a_feat_type,
         max_q_l=opt.max_q_l,
-        max_v_l=opt.max_v_l,
         max_a_l=opt.max_a_l,
         clip_len=opt.clip_length,
         max_windows=opt.max_windows,
@@ -198,9 +144,9 @@ def main(opt, resume=None, domain=None):
     )
 
     train_dataset = StartEndDataset(**dataset_config)    
-    copied_eval_config = copy.deepcopy(dataset_config)
-    copied_eval_config.data_path = opt.eval_path
-    copied_eval_config.q_feat_dir = opt.t_feat_dir_pretrain_eval if opt.t_feat_dir_pretrain_eval is not None else opt.t_feat_dir
+    #copied_eval_config = copy.deepcopy(dataset_config)
+    #copied_eval_config.data_path = opt.eval_path
+    #copied_eval_config.q_feat_dir = opt.t_feat_dir_pretrain_eval if opt.t_feat_dir_pretrain_eval is not None else opt.t_feat_dir
     eval_dataset = StartEndDataset(**copied_eval_config)
     
     # prepare model
@@ -215,10 +161,9 @@ def main(opt, resume=None, domain=None):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('--feature_dir', '-f', type=str, required=True, help='feature dir')
+    parser.add_argument('--config', '-f', type=str, required=True, help='config path')
     args = parser.parse_args()
-    option_manager = BaseOptions(args.feature_dir)
+    option_manager = BaseOptions(args.config)
     option_manager.parse()
-    option_manager.clean_and_makedirs()
     opt = option_manager.option
-    main(opt, resume=args.resume, domain=args.domain)
+    main(opt)

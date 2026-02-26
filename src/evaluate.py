@@ -1,40 +1,3 @@
-"""
-Copyright $today.year LY Corporation
-
-LY Corporation licenses this file to you under the Apache License,
-version 2.0 (the "License"); you may not use this file except in compliance
-with the License. You may obtain a copy of the License at:
-
-  https://www.apache.org/licenses/LICENSE-2.0
-
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
-WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
-License for the specific language governing permissions and limitations
-under the License.
-
-Moment-DETR (https://github.com/jayleicn/moment_detr)
-Copyright (c) 2021 Jie Lei
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
-"""
-
 import argparse
 import pprint
 
@@ -47,30 +10,22 @@ from easydict import EasyDict
 import sys
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
-from lighthouse.common.utils.basic_utils import AverageMeter
-from lighthouse.common.utils.span_utils import span_cxw_to_xx
+from basic_utils import AverageMeter
+from span_utils import span_cxw_to_xx
 
-from training.config import BaseOptions
+from config import BaseOptions
 
 import torch
 import torch.nn.functional as F
 import torch.backends.cudnn as cudnn
 from torch.utils.data import DataLoader
 
-from training.dataset import StartEndDataset, start_end_collate, prepare_batch_inputs
-from training.cg_detr_dataset import CGDETR_StartEndDataset, cg_detr_start_end_collate, cg_detr_prepare_batch_inputs
-
-from training.postprocessing import PostProcessorDETR
+from dataset import StartEndDataset, start_end_collate, prepare_batch_inputs
+from postprocessing import PostProcessorDETR
 from standalone_eval.eval import eval_submission
 
-from lighthouse.common.utils.basic_utils import save_jsonl, save_json
-from lighthouse.common.qd_detr import build_model as build_model_qd_detr
-from lighthouse.common.moment_detr import build_model as build_model_moment_detr
-from lighthouse.common.cg_detr import build_model as build_model_cg_detr
-from lighthouse.common.eatr import build_model as build_model_eatr
-from lighthouse.common.tr_detr import build_model as build_model_tr_detr
-from lighthouse.common.uvcom import build_model as build_model_uvcom
-from lighthouse.common.taskweave import build_model as build_model_task_weave
+from basic_utils import save_jsonl, save_json
+from qd_detr import build_model as build_model_qd_detr
 
 import logging
 
