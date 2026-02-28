@@ -22,12 +22,23 @@ tar -zxvf features.tar.gz
 ## Training and evaluation
 0. Train a model
 ```
-bash scripts/train.sh
+python src/train.py --config config.yml
 ```
 
 1. Evaluation
+Reproduce the evaluation on the `val` set.
 ```
-bash scripts/eval.sh
+python src/evaluate.py --config config.yml
+```
+
+Reproduce the evaluation on the `test` set.
+```
+python src/evaluate.py --config config.yml --test
+```
+
+## Preparation for submission.json
+TBD
+```
 ```
 
 ## Citation
