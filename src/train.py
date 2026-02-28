@@ -61,7 +61,6 @@ def train_epoch(
                                  desc="Training Iteration",
                                  total=num_training_examples):
         model_inputs, targets = prepare_batch_inputs(batch[1], opt.device)
-        import ipdb; ipdb.set_trace()
 
         outputs = model(**model_inputs, targets=targets) if opt.model_name == 'cg_detr' else model(**model_inputs)
         loss_dict = criterion(outputs, targets)

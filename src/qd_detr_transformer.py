@@ -95,8 +95,7 @@ class Transformer(nn.Module):
             if p.dim() > 1:
                 nn.init.xavier_uniform_(p)
 
-    # for tvsum, add video_length in argument
-    def forward(self, src, mask, query_embed, pos_embed, video_length=None):
+    def forward(self, src, mask, query_embed, pos_embed, audio_length):
         """
         Args:
             src: (batch_size, L, d)
@@ -113,12 +112,11 @@ class Transformer(nn.Module):
         pos_embed = pos_embed.permute(1, 0, 2)   # (L, batch_size, d)
         refpoint_embed = query_embed.unsqueeze(1).repeat(1, bs, 1)  # (#queries, batch_size, d)
 
-        src = self.t2v_encoder(src, src_key_padding_mask=mask, pos=pos_embed, video_length=video_length)  # (L, batch_size, d)
+        src = self.t2v_encoder(src, src_key_padding_mask=mask, pos=pos_embed, audio_length=audio_length)  # (L, batch_size, d)
         # print('after encoder : ',src.shape)
-        src = src[:video_length + 1]
-        mask = mask[:, :video_length + 1]
-        pos_embed = pos_embed[:video_length + 1]
-
+        src = src[:audio_length + 1]
+        mask = mask[:, :audio_length + 1]
+        pos_embed = pos_embed[:audio_length + 1]
 
         memory = self.encoder(src, src_key_padding_mask=mask, pos=pos_embed)  # (L, batch_size, d)
         memory_global, memory_local = memory[0], memory[1:]
@@ -143,7 +141,6 @@ class TransformerEncoder(nn.Module):
         self.norm = norm
         self.return_intermediate = return_intermediate
 
-    # for tvsum, add kwargs
     def forward(self, src,
                 mask: Optional[Tensor] = None,
                 src_key_padding_mask: Optional[Tensor] = None,
@@ -397,19 +394,19 @@ class T2V_TransformerEncoderLayer(nn.Module):
                      src_mask: Optional[Tensor] = None,
                      src_key_padding_mask: Optional[Tensor] = None,
                      pos: Optional[Tensor] = None,
-                     video_length=None):
+                     audio_length=None):
         
-        assert video_length is not None
+        assert audio_length is not None
         
         # print('before src shape :', src.shape)
         pos_src = self.with_pos_embed(src, pos)
-        global_token, q, k, v = src[0].unsqueeze(0), pos_src[1:video_length + 1], pos_src[video_length + 1:], src[video_length + 1:]
+        global_token, q, k, v = src[0].unsqueeze(0), pos_src[1:audio_length + 1], pos_src[audio_length + 1:], src[audio_length + 1:]
 
         # print(src_key_padding_mask.shape) # torch.Size([32, 102])
         # print(src_key_padding_mask[:, 1:76].permute(1,0).shape) # torch.Size([75, 32])
         # print(src_key_padding_mask[:, 76:].shape) # torch.Size([32, 26])
 
-        qmask, kmask = src_key_padding_mask[:, 1:video_length + 1].unsqueeze(2), src_key_padding_mask[:, video_length + 1:].unsqueeze(1)
+        qmask, kmask = src_key_padding_mask[:, 1:audio_length + 1].unsqueeze(2), src_key_padding_mask[:, audio_length + 1:].unsqueeze(1)
         attn_mask = torch.matmul(qmask.float(), kmask.float()).bool().repeat(self.nhead, 1, 1)
         # print(attn_mask.shape)
         # print(attn_mask[0][0])
@@ -418,14 +415,14 @@ class T2V_TransformerEncoderLayer(nn.Module):
 
 
         src2 = self.self_attn(q, k, value=v, attn_mask=attn_mask,
-                              key_padding_mask=src_key_padding_mask[:, video_length + 1:])[0]
-        src2 = src[1:video_length + 1] + self.dropout1(src2)
+                              key_padding_mask=src_key_padding_mask[:, audio_length + 1:])[0]
+        src2 = src[1:audio_length + 1] + self.dropout1(src2)
         src3 = self.norm1(src2)
         src3 = self.linear2(self.dropout(self.activation(self.linear1(src3))))
         src2 = src2 + self.dropout2(src3)
         src2 = self.norm2(src2)
         src2 = torch.cat([global_token, src2], dim=0)
-        src = torch.cat([src2, src[video_length + 1:]])
+        src = torch.cat([src2, src[audio_length + 1:]])
         # print('after src shape :',src.shape)
         return src
 

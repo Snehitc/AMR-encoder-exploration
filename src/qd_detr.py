@@ -40,9 +40,9 @@ class QDDETR(nn.Module):
             txt_position_embed: position_embedding for text
             txt_dim: int, text query input dimension
             num_queries: number of object queries, ie detection slot. This is the maximal number of objects
-                         QD-DETR can detect in a single video.
+                         QD-DETR can detect in a single audio.
             aux_loss: True if auxiliary decoding losses (loss at each decoder layer) are to be used.
-            max_v_l: int, maximum #clips in videos
+            max_a_l: int, maximum #clips in audio
             span_loss_type: str, one of [l1, ce]
                 l1: (center-x, width) regression.
                 ce: (st_idx, ed_idx) classification.
@@ -72,7 +72,7 @@ class QDDETR(nn.Module):
             LinearLayer(hidden_dim, hidden_dim, layer_norm=True, dropout=input_dropout, relu=relu_args[2])
         ][:n_input_proj])
         self.input_aud_proj = nn.Sequential(*[
-            LinearLayer(aud_dim, hidden_dim, layer_norm=True, dropout=input_dropout, relu=relu_args[0]),
+            LinearLayer(aud_dim + 2, hidden_dim, layer_norm=True, dropout=input_dropout, relu=relu_args[0]), # add pos_embedding
             LinearLayer(hidden_dim, hidden_dim, layer_norm=True, dropout=input_dropout, relu=relu_args[1]),
             LinearLayer(hidden_dim, hidden_dim, layer_norm=True, dropout=input_dropout, relu=relu_args[2])
         ][:n_input_proj])
@@ -86,13 +86,13 @@ class QDDETR(nn.Module):
         self.global_rep_pos = torch.nn.Parameter(torch.randn(hidden_dim))
 
 
-    def forward(self, src_txt, src_txt_mask, src_vid, src_vid_mask, src_aud=None, src_aud_mask=None):
+    def forward(self, src_txt, src_txt_mask, src_aud, src_aud_mask):
         """The forward expects two tensors:
                - src_txt: [batch_size, L_txt, D_txt]
                - src_txt_mask: [batch_size, L_txt], containing 0 on padded pixels,
                     will convert to 1 as padding later for transformer
-               - src_vid: [batch_size, L_vid, D_vid]
-               - src_vid_mask: [batch_size, L_vid], containing 0 on padded pixels,
+               - src_aud: [batch_size, L_aud, D_aud]
+               - src_aud_mask: [batch_size, L_aud], containing 0 on padded pixels,
                     will convert to 1 as padding later for transformer
 
             It returns a dict with the following elements:
@@ -103,19 +103,16 @@ class QDDETR(nn.Module):
                - "aux_outputs": Optional, only returned when auxilary losses are activated. It is a list of
                                 dictionnaries containing the two above keys for each decoder layer.
         """
-        if src_aud is not None:
-            src_vid = torch.cat([src_vid, src_aud], dim=2)
-
-        src_vid = self.input_vid_proj(src_vid)
+        src_aud = self.input_aud_proj(src_aud)
         src_txt = self.input_txt_proj(src_txt)
-        src = torch.cat([src_vid, src_txt], dim=1)  # (bsz, L_vid+L_txt, d)
-        mask = torch.cat([src_vid_mask, src_txt_mask], dim=1).bool()  # (bsz, L_vid+L_txt)
-        pos_vid = self.position_embed(src_vid, src_vid_mask)  # (bsz, L_vid, d)
+        src = torch.cat([src_aud, src_txt], dim=1)  # (bsz, L_aud+L_txt, d)
+        mask = torch.cat([src_aud_mask, src_txt_mask], dim=1).bool()  # (bsz, L_aud+L_txt)
+        pos_aud = self.position_embed(src_aud, src_aud_mask)  # (bsz, L_aud, d)
         pos_txt = self.txt_position_embed(src_txt) if self.use_txt_pos else torch.zeros_like(src_txt)  # (bsz, L_txt, d)
         # pos_txt = torch.zeros_like(src_txt)
         # pad zeros for txt positions
-        pos = torch.cat([pos_vid, pos_txt], dim=1)
-        # (#layers, bsz, #queries, d), (bsz, L_vid+L_txt, d)
+        pos = torch.cat([pos_aud, pos_txt], dim=1)
+        # (#layers, bsz, #queries, d), (bsz, L_aud+L_txt, d)
 
         # for global token
         mask_ = torch.tensor([[True]]).to(mask.device).repeat(mask.shape[0], 1)
@@ -125,9 +122,9 @@ class QDDETR(nn.Module):
         pos_ = self.global_rep_pos.reshape([1, 1, self.hidden_dim]).repeat(pos.shape[0], 1, 1)
         pos = torch.cat([pos_, pos], dim=1)
 
-        video_length = src_vid.shape[1]
+        audio_length = src_aud.shape[1]
         
-        hs, reference, memory, memory_global = self.transformer(src, ~mask, self.query_embed.weight, pos, video_length=video_length)
+        hs, reference, memory, memory_global = self.transformer(src, ~mask, self.query_embed.weight, pos, audio_length)
         outputs_class = self.class_embed(hs)  # (#layers, batch_size, #queries, #classes)
         reference_before_sigmoid = inverse_sigmoid(reference)
         tmp = self.span_embed(hs)
@@ -136,31 +133,25 @@ class QDDETR(nn.Module):
             outputs_coord = outputs_coord.sigmoid()
         out = {'pred_logits': outputs_class[-1], 'pred_spans': outputs_coord[-1]}
 
-        txt_mem = memory[:, src_vid.shape[1]:]  # (bsz, L_txt, d)
-        vid_mem = memory[:, :src_vid.shape[1]]  # (bsz, L_vid, d)
+        txt_mem = memory[:, src_aud.shape[1]:]  # (bsz, L_txt, d)
+        aud_mem = memory[:, :src_aud.shape[1]]  # (bsz, L_aud, d)
             
-        # !!! this is code for test
-        if src_txt.shape[1] == 0:
-            print("There is zero text query. You should change codes properly")
-            exit(-1)
-
         ### Neg Pairs ###
         src_txt_neg = torch.cat([src_txt[1:], src_txt[0:1]], dim=0)
         src_txt_mask_neg = torch.cat([src_txt_mask[1:], src_txt_mask[0:1]], dim=0)
-        src_neg = torch.cat([src_vid, src_txt_neg], dim=1)
-        mask_neg = torch.cat([src_vid_mask, src_txt_mask_neg], dim=1).bool()
+        src_neg = torch.cat([src_aud, src_txt_neg], dim=1)
+        mask_neg = torch.cat([src_aud_mask, src_txt_mask_neg], dim=1).bool()
 
         mask_neg = torch.cat([mask_, mask_neg], dim=1)
         src_neg = torch.cat([src_, src_neg], dim=1)
         pos_neg = pos.clone()  # since it does not use actual content
 
-        _, _, memory_neg, memory_global_neg = self.transformer(src_neg, ~mask_neg, self.query_embed.weight, pos_neg, video_length=video_length)
-        vid_mem_neg = memory_neg[:, :src_vid.shape[1]]
+        _, _, memory_neg, memory_global_neg = self.transformer(src_neg, ~mask_neg, self.query_embed.weight, pos_neg, audio_length)
+        aud_mem_neg = memory_neg[:, :src_aud.shape[1]]
 
-        out["saliency_scores"] = (torch.sum(self.saliency_proj1(vid_mem) * self.saliency_proj2(memory_global).unsqueeze(1), dim=-1) / np.sqrt(self.hidden_dim))
-        out["saliency_scores_neg"] = (torch.sum(self.saliency_proj1(vid_mem_neg) * self.saliency_proj2(memory_global_neg).unsqueeze(1), dim=-1) / np.sqrt(self.hidden_dim))
-
-        out["video_mask"] = src_vid_mask
+        out["saliency_scores"] = (torch.sum(self.saliency_proj1(aud_mem) * self.saliency_proj2(memory_global).unsqueeze(1), dim=-1) / np.sqrt(self.hidden_dim))
+        out["saliency_scores_neg"] = (torch.sum(self.saliency_proj1(aud_mem_neg) * self.saliency_proj2(memory_global_neg).unsqueeze(1), dim=-1) / np.sqrt(self.hidden_dim))
+        out["audio_mask"] = src_aud_mask
         if self.aux_loss:
             out['aux_outputs'] = [
                 {'pred_logits': a, 'pred_spans': b} for a, b in zip(outputs_class[:-1], outputs_coord[:-1])]
@@ -260,13 +251,13 @@ class SetCriterion(nn.Module):
         if "saliency_pos_labels" not in targets:
             return {"loss_saliency": 0}
 
-        vid_token_mask = outputs["video_mask"]
+        aud_token_mask = outputs["audio_mask"]
 
         # Neg pair loss
         saliency_scores_neg = outputs["saliency_scores_neg"].clone()  # (N, L)
         # loss_neg_pair = torch.sigmoid(saliency_scores_neg).mean()
         
-        loss_neg_pair = (- torch.log(1. - torch.sigmoid(saliency_scores_neg)) * vid_token_mask).sum(dim=1).mean()
+        loss_neg_pair = (- torch.log(1. - torch.sigmoid(saliency_scores_neg)) * aud_token_mask).sum(dim=1).mean()
 
         saliency_scores = outputs["saliency_scores"].clone()  # (N, L)
         saliency_contrast_label = targets["saliency_all_labels"]
@@ -274,8 +265,8 @@ class SetCriterion(nn.Module):
         saliency_scores = torch.cat([saliency_scores, saliency_scores_neg], dim=1)
         saliency_contrast_label = torch.cat([saliency_contrast_label, torch.zeros_like(saliency_contrast_label)], dim=1)
 
-        vid_token_mask = vid_token_mask.repeat([1, 2])
-        saliency_scores = vid_token_mask * saliency_scores + (1. - vid_token_mask) * -1e+3
+        aud_token_mask = aud_token_mask.repeat([1, 2])
+        saliency_scores = aud_token_mask * saliency_scores + (1. - aud_token_mask) * -1e+3
 
         tau = 0.5
         loss_rank_contrastive = 0.
@@ -301,7 +292,7 @@ class SetCriterion(nn.Module):
             exp_logits = torch.exp(logits)
             log_prob = logits - torch.log(exp_logits.sum(1, keepdim=True) + 1e-6)
 
-            mean_log_prob_pos = (pos_mask * log_prob * vid_token_mask).sum(1) / (pos_mask.sum(1) + 1e-6)
+            mean_log_prob_pos = (pos_mask * log_prob * aud_token_mask).sum(1) / (pos_mask.sum(1) + 1e-6)
 
             loss = - mean_log_prob_pos * batch_drop_mask
 

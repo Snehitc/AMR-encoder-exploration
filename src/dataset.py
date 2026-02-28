@@ -322,9 +322,12 @@ def start_end_collate(batch):
             batched_data[k] = torch.tensor(pad_data, dtype=torch.float32)
             continue
 
-        import ipdb; ipdb.set_trace()
-        batched_data[k] = pad_sequences_1d(
-            [e["model_inputs"][k] for e in batch], dtype=torch.float32, fixed_length=None)
+        if batch[0]['model_inputs'][k].dtype == torch.float32:
+            batched_data[k] = pad_sequences_1d(
+                [e["model_inputs"][k] for e in batch], dtype=torch.float32, fixed_length=None)
+        else:
+            batched_data[k] = pad_sequences_1d(
+                [torch.from_numpy(e["model_inputs"][k]) for e in batch], dtype=torch.float32, fixed_length=None)
     return batch_meta, batched_data
 
 
@@ -332,11 +335,8 @@ def prepare_batch_inputs(batched_model_inputs, device, non_blocking=False):
     model_inputs = dict(
         src_txt=batched_model_inputs["query_feat"][0].to(device, non_blocking=non_blocking),
         src_txt_mask=batched_model_inputs["query_feat"][1].to(device, non_blocking=non_blocking),
-        src_vid=batched_model_inputs["video_feat"][0].to(device, non_blocking=non_blocking),
-        src_vid_mask=batched_model_inputs["video_feat"][1].to(device, non_blocking=non_blocking),
     )
     
-    import ipdb; ipdb.set_trace()
     if "audio_feat" in batched_model_inputs:
         model_inputs["src_aud"] = batched_model_inputs["audio_feat"][0].to(device, non_blocking=non_blocking)
         model_inputs["src_aud_mask"] = batched_model_inputs["audio_feat"][1].to(device, non_blocking=non_blocking)
