@@ -52,6 +52,7 @@ dset_name: castella
 clip_length: 1
 train_path: data/castella_train_release.jsonl
 eval_path: data/castella_val_release.jsonl
+test_path: data/castella_test_release.jsonl
 max_q_l: 32
 max_a_l: 300
 

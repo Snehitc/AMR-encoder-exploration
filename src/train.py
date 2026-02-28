@@ -182,7 +182,7 @@ def main(opt):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('--config', '-f', type=str, required=True, help='config path')
+    parser.add_argument('--config', '-c', type=str, required=True, help='config path')
     args = parser.parse_args()
     option_manager = BaseOptions(args.config)
     option_manager.parse()

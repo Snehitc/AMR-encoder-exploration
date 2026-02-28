@@ -30,10 +30,48 @@ Reproduce the evaluation on the `val` set.
 ```
 python src/evaluate.py --config config.yml
 ```
+The result is:
+```
+2026-02-28 21:24:35.081:INFO:__main__ - Setup config, data and model...
+2026-02-28 21:24:35.088:INFO:__main__ - setup model/optimizer/scheduler
+2026-02-28 21:24:35.741:INFO:__main__ - CUDA enabled.
+2026-02-28 21:24:36.326:INFO:__main__ - Model checkpoint: results/best_checkpoint.pth
+2026-02-28 21:24:36.326:INFO:__main__ - Starting inference...
+2026-02-28 21:24:36.326:INFO:__main__ - Generate submissions
+compute st ed scores: 100%|█████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 4/4 [00:02<00:00,  1.72it/s]
+convert to multiples of clip_length=1: 100%|█████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 352/352 [00:00<00:00, 30208.19it/s]
+2026-02-28 21:24:38.670:INFO:__main__ - Saving/Evaluating before nms results
+full: [0, 1500], 352/352=100.00 examples.
+[eval_moment_retrieval] [full] 0.10 seconds
+2026-02-28 21:24:38.776:INFO:__main__ - metrics_no_nms OrderedDict([   ('MR-full-R1@0.5', 26.14),
+                ('MR-full-R1@0.7', 14.2),
+                ('MR-full-mAP', 11.69),
+                ('MR-full-mAP@0.5', 23.42),
+                ('MR-full-mAP@0.75', 9.58)])
+```
 
-Reproduce the evaluation on the `test` set.
+Reproduce the evaluation on the `test` set:
 ```
 python src/evaluate.py --config config.yml --test
+```
+The result is:
+```
+2026-02-28 21:25:10.009:INFO:__main__ - Setup config, data and model...
+2026-02-28 21:25:10.019:INFO:__main__ - setup model/optimizer/scheduler
+2026-02-28 21:25:10.654:INFO:__main__ - CUDA enabled.
+2026-02-28 21:25:11.240:INFO:__main__ - Model checkpoint: results/best_checkpoint.pth
+2026-02-28 21:25:11.240:INFO:__main__ - Starting inference...
+2026-02-28 21:25:11.240:INFO:__main__ - Generate submissions
+compute st ed scores: 100%|███████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 14/14 [00:07<00:00,  1.83it/s]
+convert to multiples of clip_length=1: 100%|███████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 1347/1347 [00:00<00:00, 31431.38it/s]
+2026-02-28 21:25:18.938:INFO:__main__ - Saving/Evaluating before nms results
+full: [0, 1500], 1347/1347=100.00 examples.
+[eval_moment_retrieval] [full] 0.28 seconds
+2026-02-28 21:25:19.230:INFO:__main__ - metrics_no_nms OrderedDict([   ('MR-full-R1@0.5', 23.09),
+                ('MR-full-R1@0.7', 10.47),
+                ('MR-full-mAP', 8.99),
+                ('MR-full-mAP@0.5', 20.14),
+                ('MR-full-mAP@0.75', 7.49)])
 ```
 
 ## Preparation for submission.json

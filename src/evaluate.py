@@ -40,7 +40,7 @@ def eval_epoch_post_processing(submission, opt, gt_data, save_submission_filenam
     submission_path = os.path.join(opt.results_dir, save_submission_filename)
     save_jsonl(submission, submission_path)
 
-    if opt.eval_split_name in ["val"]:
+    if opt.eval_split_name in ["val", "test"]:
         metrics = eval_submission(submission, gt_data)
         save_metrics_path = submission_path.replace(".jsonl", "_metrics.json")
         save_json(metrics, save_metrics_path, save_pretty=True, sort_keys=False)
@@ -143,7 +143,7 @@ def compute_hl_results(epoch_i, model, eval_loader, opt, criterion=None):
 
 
 @torch.no_grad()
-def compute_mr_results(epoch_i, model, eval_loader, opt, criterion=None):
+def compute_mr_results(model, eval_loader, opt, criterion=None):
     batch_input_fn = cg_detr_prepare_batch_inputs if opt.model_name == 'cg_detr' else prepare_batch_inputs
     loss_meters = defaultdict(AverageMeter)
 
@@ -235,39 +235,29 @@ def compute_mr_results(epoch_i, model, eval_loader, opt, criterion=None):
     return mr_res, loss_meters
 
 
-def get_eval_res(epoch_i, model, eval_loader, opt, criterion):
+def get_eval_res(model, eval_loader, opt, criterion):
     """compute and save query and video proposal embeddings"""
-    eval_res, eval_loss_meters = compute_mr_results(epoch_i, model, eval_loader, opt, criterion)
+    eval_res, eval_loss_meters = compute_mr_results(model, eval_loader, opt, criterion)
     return eval_res, eval_loss_meters
 
 
-def eval_epoch(epoch_i, model, eval_dataset, opt, save_submission_filename, criterion=None):
-    collate_fn = cg_detr_start_end_collate if opt.model_name == 'cg_detr' else start_end_collate
+def eval_epoch(model, eval_dataset, opt, save_submission_filename, criterion):
     logger.info("Generate submissions")
     model.eval()
-    if criterion is not None:
-        criterion.eval()
+    criterion.eval()
 
     eval_loader = DataLoader(
         eval_dataset,
-        collate_fn=collate_fn,
+        collate_fn=start_end_collate,
         batch_size=opt.eval_bsz,
         num_workers=opt.num_workers,
         shuffle=False,
     )
 
-    if opt.dset_name == 'tvsum' or opt.dset_name == 'youtube_highlight':
-        metrics, eval_loss_meters = compute_hl_results(epoch_i, model, eval_loader, opt, criterion)
-        # to match original save format
-        submission = [{ "brief" : metrics }]
-        save_metrics_path = os.path.join(opt.results_dir, save_submission_filename.replace('.jsonl', '_metrics.jsonl'))
-        save_jsonl(submission, save_metrics_path)
-        return submission[0], eval_loss_meters, [save_metrics_path]
-    else:
-        submission, eval_loss_meters = get_eval_res(epoch_i, model, eval_loader, opt, criterion)        
-        metrics, latest_file_paths = eval_epoch_post_processing(
-            submission, opt, eval_dataset.data, save_submission_filename)
-        return metrics, eval_loss_meters, latest_file_paths
+    submission, eval_loss_meters = get_eval_res(model, eval_loader, opt, criterion)        
+    metrics, latest_file_paths = eval_epoch_post_processing(
+        submission, opt, eval_dataset.data, save_submission_filename)
+    return metrics, eval_loss_meters, latest_file_paths
 
 
 def setup_model(opt):
@@ -287,113 +277,50 @@ def setup_model(opt):
     return model, criterion, optimizer, lr_scheduler
 
 
-def start_inference(opt, domain=None):
+def start_inference(opt):
     logger.info("Setup config, data and model...")
 
-    cudnn.benchmark = True
-    cudnn.deterministic = False
-    load_labels = opt.eval_split_name == 'val'
-    epoch_i = None # for TaskWeave.
-    
     # dataset & data loader
     dataset_config = EasyDict(
-        dset_name=opt.dset_name,
-        domain=domain,
-        data_path=opt.eval_path,
+        data_path=opt.eval_path if opt.eval_split_name == 'val' else opt.test_path,
         ctx_mode=opt.ctx_mode,
-        v_feat_dirs=opt.v_feat_dirs,
-        a_feat_dirs=opt.a_feat_dirs,
+        a_feat_dir=opt.a_feat_dir,
         q_feat_dir=opt.t_feat_dir,
         q_feat_type="last_hidden_state",
-        v_feat_types=opt.v_feat_types,
-        a_feat_types=opt.a_feat_types,
+        a_feat_type=opt.a_feat_type,
         max_q_l=opt.max_q_l,
-        max_v_l=opt.max_v_l,
         max_a_l=opt.max_a_l,
         clip_len=opt.clip_length,
         max_windows=opt.max_windows,
         span_loss_type=opt.span_loss_type,
-        load_labels=load_labels,
+        load_labels=True,
     )
     
-    eval_dataset = CGDETR_StartEndDataset(**dataset_config) if opt.model_name == 'cg_detr' else StartEndDataset(**dataset_config)
+    eval_dataset = StartEndDataset(**dataset_config)
     model, criterion, _, _ = setup_model(opt)
     checkpoint = torch.load(opt.model_path, weights_only=False)
     model.load_state_dict(checkpoint["model"])
     logger.info("Model checkpoint: {}".format(opt.model_path))
-    if not load_labels:
-        criterion = None
-
-    save_submission_filename = "hl_{}_submission.jsonl".format(opt.eval_split_name)
 
     logger.info("Starting inference...")
+    save_submission_filename = "submission.jsonl"
+
     with torch.no_grad():
         metrics, eval_loss_meters, latest_file_paths = \
-            eval_epoch(epoch_i, model, eval_dataset, opt, save_submission_filename, criterion)
-
-    if opt.eval_split_name == 'val':
-        logger.info("metrics_no_nms {}".format(pprint.pformat(metrics["brief"], indent=4)))
-
-
-def check_valid_combination(dataset, feature, domain):
-    dataset_feature_map = {
-        'qvhighlight': ['resnet_glove', 'clip', 'clip_slowfast', 'clip_slowfast_pann'],
-        'qvhighlight_pretrain': ['resnet_glove', 'clip', 'clip_slowfast', 'clip_slowfast_pann'],
-        'activitynet': ['resnet_glove', 'clip', 'clip_slowfast'],
-        'charades': ['resnet_glove', 'clip', 'clip_slowfast'],
-        'tacos': ['resnet_glove', 'clip', 'clip_slowfast'],
-        'tvsum': ['resnet_glove', 'clip', 'clip_slowfast', 'i3d_clip'],
-        'youtube_highlight': ['clip', 'clip_slowfast'],
-        'clotho-moment': ['clap'],
-        'unav100-subset': ['clap'],
-        'castella': ['clap'],
-    }
-
-    domain_map = {
-        'tvsum': ['BK', 'BT', 'DS', 'FM', 'GA', 'MS', 'PK', 'PR', 'VT', 'VU'],
-        'youtube_highlight': ['dog', 'gymnastics', 'parkour', 'skating', 'skiing', 'surfing'],
-    }
-
-    if dataset in domain_map:
-        return feature in dataset_feature_map[dataset] and domain in domain_map[dataset]
-    else:
-        return feature in dataset_feature_map[dataset]
+            eval_epoch(model, eval_dataset, opt, save_submission_filename, criterion)
+    logger.info("metrics_no_nms {}".format(pprint.pformat(metrics["brief"], indent=4)))
 
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('--model', '-m', type=str, required=True, 
-                        choices=['moment_detr', 'qd_detr', 'eatr', 'cg_detr', 'uvcom', 'tr_detr', 'taskweave_hd2mr', 'taskweave_mr2hd'],
-                        help='model name. select from [moment_detr, qd_detr, eatr, cg_detr, uvcom, tr_detr, taskweave_hd2mr, taskweave_mr2hd]')
-    parser.add_argument('--dataset', '-d', type=str, required=True,
-                        choices=['activitynet', 'charades', 'qvhighlight', 'qvhighlight_pretrain', 'tacos', 'tvsum', 'youtube_highlight', 'clotho-moment', 'unav100-subset', 'tut2017', 'castella'],
-                        help='dataset name. select from [activitynet, charades, qvhighlight, qvhighlight_pretrain, tacos, tvsum, youtube_highlight, clotho-moment, unav100-subset, tut2017, castella]')
-    parser.add_argument('--feature', '-f', type=str, required=True,
-                        choices=['resnet_glove', 'clip', 'clip_slowfast', 'clip_slowfast_pann', 'i3d_clip', 'clap'],
-                        help='feature name. select from [resnet_glove, clip, clip_slowfast, clip_slowfast_pann, i3d_clip, clap].'
-                             'NOTE: i3d_clip and clip_slowfast_pann are only for TVSum and QVHighlight, respectively')
-    parser.add_argument('--model_path', type=str, required=True, help='saved model path')
-    parser.add_argument('--split', type=str, required=True, choices=['val', 'test'], help='val or test')
-    parser.add_argument('--eval_path', type=str, required=True, help='evaluation data')
-    parser.add_argument('--domain', '-dm', type=str,
-                        choices=['BK', 'BT', 'DS', 'FM', 'GA', 'MS', 'PK', 'PR', 'VT', 'VU',
-                                 'dog', 'gymnastics', 'parkour', 'skating', 'skiing', 'surfing'],
-                        help='domain for highlight detection dataset (e.g., BK for TVSum, dog for YouTube Highlight).')
-
+    parser.add_argument('--config', '-c', type=str, required=True, help='config path')
+    parser.add_argument('--model_path', '-m', type=str, required=True, help='model checkpoint path')
+    parser.add_argument('--split', '-s', type=str, default='val', choices=['val', 'test'], help='split name: val or test')
     args = parser.parse_args()
-    is_valid = check_valid_combination(args.dataset, args.feature, args.domain)
+    option_manager = BaseOptions(args.config)
+    option_manager.parse()
+    opt = option_manager.option
 
-    if is_valid:
-        resume = False
-        option_manager = BaseOptions(args.model, args.dataset, args.feature, resume, args.domain)
-        option_manager.parse()
-        opt = option_manager.option
-        os.makedirs(opt.results_dir, exist_ok=True)
-
-        opt.model_path = args.model_path
-        opt.eval_split_name = args.split
-        opt.eval_path = args.eval_path
-        start_inference(opt, domain=args.domain)
-    
-    else:
-        raise ValueError('The combination of dataset and feature is invalid: dataset={}, feature={}'.format(args.dataset, args.feature))
+    opt.model_path = args.model_path
+    opt.eval_split_name = args.split
+    start_inference(opt)
