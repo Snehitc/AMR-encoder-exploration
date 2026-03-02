@@ -117,10 +117,10 @@ def train(
             with torch.no_grad():
                 if opt.model_ema:
                     metrics, eval_loss_meters, latest_file_paths = \
-                        eval_epoch(epoch_i, model_ema.module, val_dataset, opt, save_submission_filename, criterion)
+                        eval_epoch(model_ema.module, val_dataset, opt, save_submission_filename, criterion)
                 else:
                     metrics, eval_loss_meters, latest_file_paths = \
-                        eval_epoch(epoch_i, model, val_dataset, opt, save_submission_filename, criterion)
+                        eval_epoch(model, val_dataset, opt, save_submission_filename, criterion)
 
             write_log(opt, epoch_i, eval_loss_meters, metrics=metrics, mode='val')            
             logger.info("metrics {}".format(pprint.pformat(metrics["brief"], indent=4)))
