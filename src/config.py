@@ -22,7 +22,7 @@ import shutil
 import yaml
 import copy
 
-from lighthouse.common.utils.basic_utils import mkdirp, load_json, save_json, make_zipfile, dict_to_markdown
+from utils.basic_utils import mkdirp, load_json, save_json, make_zipfile, dict_to_markdown
 from easydict import EasyDict
 
 
