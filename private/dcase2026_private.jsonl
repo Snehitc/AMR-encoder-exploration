@@ -1,0 +1,19 @@
+{"qid": "dcase2026_private_wav_001_1", "query": "Something entering the water", "duration": 60, "vid": "dcase2026_private_audio_001"}
+{"qid": "dcase2026_private_wav_001_2", "query": "Heavy breathing", "duration": 60, "vid": "dcase2026_private_audio_001"}
+{"qid": "dcase2026_private_wav_002_1", "query": "A man talking while the wind is blowing", "duration": 63, "vid": "dcase2026_private_audio_002"}
+{"qid": "dcase2026_private_wav_003_1", "query": "Tapping glass with a mallet", "duration": 68, "vid": "dcase2026_private_audio_003"}
+{"qid": "dcase2026_private_wav_004_1", "query": "A rooster crowing", "duration": 69, "vid": "dcase2026_private_audio_004"}
+{"qid": "dcase2026_private_wav_004_2", "query": "A duck quacking", "duration": 69, "vid": "dcase2026_private_audio_004"}
+{"qid": "dcase2026_private_wav_004_3", "query": "A man's speaking voice", "duration": 69, "vid": "dcase2026_private_audio_004"}
+{"qid": "dcase2026_private_wav_005_1", "query": "Blowing a trumpet", "duration": 69, "vid": "dcase2026_private_audio_005"}
+{"qid": "dcase2026_private_wav_005_2", "query": "A woman laughing", "duration": 69, "vid": "dcase2026_private_audio_005"}
+{"qid": "dcase2026_private_wav_006_1", "query": "A metal bell ringing", "duration": 83, "vid": "dcase2026_private_audio_006"}
+{"qid": "dcase2026_private_wav_006_2", "query": "Pouring hot water", "duration": 83, "vid": "dcase2026_private_audio_006"}
+{"qid": "dcase2026_private_wav_007_1", "query": "Laughter", "duration": 85, "vid": "dcase2026_private_audio_007"}
+{"qid": "dcase2026_private_wav_007_2", "query": "A man talking while music is playing", "duration": 85, "vid": "dcase2026_private_audio_007"}
+{"qid": "dcase2026_private_wav_008_1", "query": "A car warning sound ringing over engine noise", "duration": 93, "vid": "dcase2026_private_audio_008"}
+{"qid": "dcase2026_private_wav_008_2", "query": "Something being crushed", "duration": 93, "vid": "dcase2026_private_audio_008"}
+{"qid": "dcase2026_private_wav_009_1", "query": "Electronic music playing amidst noise", "duration": 108, "vid": "dcase2026_private_audio_009"}
+{"qid": "dcase2026_private_wav_010_1", "query": "A man's speaking voice", "duration": 142, "vid": "dcase2026_private_audio_010"}
+{"qid": "dcase2026_private_wav_010_2", "query": "Firing a gun", "duration": 142, "vid": "dcase2026_private_audio_010"}
+{"qid": "dcase2026_private_wav_010_3", "query": "Birds chirping", "duration": 142, "vid": "dcase2026_private_audio_010"}

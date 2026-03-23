@@ -52,96 +52,6 @@ def eval_epoch_post_processing(submission, opt, gt_data, save_submission_filenam
     return metrics, latest_file_paths
 
 
-# for HL
-@torch.no_grad()
-def compute_hl_results(epoch_i, model, eval_loader, opt, criterion=None):
-    batch_input_fn = cg_detr_prepare_batch_inputs  if opt.model_name == 'cg_detr' else prepare_batch_inputs
-    loss_meters = defaultdict(AverageMeter)
-
-    video_ap_collected = []
-    topk = 5 # top-5 map
-
-    for batch in tqdm(eval_loader, desc="compute st ed scores"):
-        query_meta = batch[0]
-        model_inputs, targets = batch_input_fn(batch[1], opt.device)
-
-        if opt.model_name == 'taskweave':
-            model_inputs['epoch_i'] = epoch_i
-            outputs, _ = model(**model_inputs)
-        else:
-            outputs = model(**model_inputs)
-
-        preds = outputs['saliency_scores']
-        for meta, pred in zip(query_meta, preds):
-            label = meta['label'] # raw label
-            video_ap = []
-            # Follow the UMT code "https://github.com/TencentARC/UMT/blob/main/datasets/tvsum.py"
-            if opt.dset_name == 'tvsum':
-                for i in range(20):
-                    pred = pred.cpu()
-                    cur_pred = pred[:len(label)]
-                    inds = torch.argsort(cur_pred, descending=True, dim=-1)
-
-                    # video_id = self.get_video_id(idx)
-                    cur_label = torch.Tensor(label)[:, i]
-                    cur_label = torch.where(cur_label > cur_label.median(), 1.0, .0)
-
-                    cur_label = cur_label[inds].tolist()[:topk]
-
-                    # if (num_gt := sum(cur_label)) == 0:
-                    num_gt = sum(cur_label)
-                    if num_gt == 0:
-                        video_ap.append(0)
-                        continue
-
-                    hits = ap = rec = 0
-                    prc = 1
-
-                    for j, gt in enumerate(cur_label):
-                        hits += gt
-
-                        _rec = hits / num_gt
-                        _prc = hits / (j + 1)
-
-                        ap += (_rec - rec) * (prc + _prc) / 2
-                        rec, prc = _rec, _prc
-
-                    video_ap.append(ap)
-            
-            elif opt.dset_name == 'youtube_highlight':
-                cur_pred = pred[:len(label)].cpu()
-                inds = torch.argsort(cur_pred, descending=True, dim=-1)
-                cur_label = torch.Tensor(label).squeeze()[inds].tolist()
-                num_gt = sum(cur_label)
-                if num_gt == 0:
-                    video_ap.append(0)
-                    continue
-
-                hits = ap = rec = 0
-                prc = 1
-
-                for j, gt in enumerate(cur_label):
-                    hits += gt
-
-                    _rec = hits / num_gt
-                    _prc = hits / (j + 1)
-
-                    ap += (_rec - rec) * (prc + _prc) / 2
-                    rec, prc = _rec, _prc
-                
-                video_ap.append(float(ap))
-
-            else:
-                raise NotImplementedError
-
-            video_ap_collected.append(video_ap)  
-
-    mean_ap = np.mean(video_ap_collected)
-    submmission = dict(mAP=round(mean_ap, 5))
-    
-    return submmission, loss_meters
-
-
 @torch.no_grad()
 def compute_mr_results(model, eval_loader, opt, criterion=None):
     batch_input_fn = cg_detr_prepare_batch_inputs if opt.model_name == 'cg_detr' else prepare_batch_inputs
@@ -151,20 +61,7 @@ def compute_mr_results(model, eval_loader, opt, criterion=None):
     for batch in tqdm(eval_loader, desc="compute st ed scores"):
         query_meta = batch[0]
         model_inputs, targets = batch_input_fn(batch[1], opt.device)
-
-        if opt.model_name == 'taskweave':
-            model_inputs['epoch_i'] = epoch_i
-            outputs, _ = model(**model_inputs)
-        else:
-            outputs = model(**model_inputs)
-
-        # saliency scores
-        _saliency_scores = outputs["saliency_scores"].half()  # (bsz, L)
-        saliency_scores = []
-        valid_vid_lengths = model_inputs["src_aud_mask"].sum(1).cpu().tolist()
-        for j in range(len(valid_vid_lengths)):
-            valid_length = int(valid_vid_lengths[j])
-            saliency_scores.append(_saliency_scores[j, :valid_length].tolist())
+        outputs = model(**model_inputs)
 
         # compose predictions
         pred_spans = outputs["pred_spans"].cpu()  # (bsz, #queries, 2)
@@ -177,22 +74,12 @@ def compute_mr_results(model, eval_loader, opt, criterion=None):
             cur_ranked_preds = sorted(cur_ranked_preds, key=lambda x: x[2], reverse=True)
             cur_ranked_preds = [[float(f"{e:.4f}") for e in row] for row in cur_ranked_preds]
 
-            if opt.dset_name in ['qvhighlight', 'qvhighlight_pretrain']:
-                cur_query_pred = dict(
-                    qid=meta["qid"],
-                    query=meta["query"],
-                    vid=meta["vid"],
-                    pred_relevant_windows=cur_ranked_preds,
-                    pred_saliency_scores=saliency_scores[idx]
-                )
-            else:
-                # anet, charades
-                cur_query_pred = dict(
-                    qid=meta["qid"],
-                    query=meta["query"],
-                    vid=meta["vid"],
-                    pred_relevant_windows=cur_ranked_preds,
-                )
+            cur_query_pred = dict(
+                qid=meta["qid"],
+                query=meta["query"],
+                vid=meta["vid"],
+                pred_relevant_windows=cur_ranked_preds,
+            )
 
             mr_res.append(cur_query_pred)
 
@@ -204,32 +91,11 @@ def compute_mr_results(model, eval_loader, opt, criterion=None):
             for k, v in loss_dict.items():
                 loss_meters[k].update(float(v) * weight_dict[k] if k in weight_dict else float(v))
 
-    if opt.dset_name in ['qvhighlight', 'qvhighlight_pretrain']:
-        post_processor = PostProcessorDETR(
-            clip_length=opt.clip_length, min_ts_val=0, max_ts_val=150,
-            min_w_l=2, max_w_l=150, move_window_method="left",
-            process_func_names=("clip_ts", "round_multiple")
-        )
-    elif opt.dset_name in ['charades', 'clotho-moment', 'unav100-subset', 'tut2017']:
-        post_processor = PostProcessorDETR(
-            clip_length=opt.clip_length, min_ts_val=0, max_ts_val=150,
-            min_w_l=2, max_w_l=60, move_window_method="left",
-            process_func_names=("clip_ts", "round_multiple")
-        )
-    elif opt.dset_name in ['castella']:
-        post_processor = PostProcessorDETR(
-            clip_length=opt.clip_length, min_ts_val=0, max_ts_val=300,
-            min_w_l=1, max_w_l=300, move_window_method="left",
-            process_func_names=("clip_ts", "round_multiple")
-        )
-    elif opt.dset_name in ['tacos', 'activitynet', 'youtube_highlight']:
-        post_processor = PostProcessorDETR(
-            clip_length=opt.clip_length, min_ts_val=0, max_ts_val=50000,
-            min_w_l=0, max_w_l=50000, move_window_method="left",
-            process_func_names=(["round_multiple"])
-        )
-    else:
-        raise NotImplementedError
+    post_processor = PostProcessorDETR(
+        clip_length=opt.clip_length, min_ts_val=0, max_ts_val=300,
+        min_w_l=1, max_w_l=300, move_window_method="left",
+        process_func_names=("clip_ts", "round_multiple")
+    )
 
     mr_res = post_processor(mr_res)
     return mr_res, loss_meters

@@ -28,7 +28,7 @@ python src/train.py --config config.yml
 1. Evaluation
 Reproduce the evaluation on the `val` set.
 ```
-python src/evaluate.py --config config.yml
+python src/evaluate.py --config config.yml --model_path results/best_checkpoint.pth
 ```
 The result is:
 ```
@@ -52,7 +52,7 @@ full: [0, 1500], 352/352=100.00 examples.
 
 Reproduce the evaluation on the `test` set:
 ```
-python src/evaluate.py --config config.yml --test
+python src/evaluate.py --config config.yml --test --model_path results/best_checkpoint.pth
 ```
 The result is:
 ```
@@ -75,9 +75,11 @@ full: [0, 1500], 1347/1347=100.00 examples.
 ```
 
 ## Preparation for submission.json
-TBD
+Run the following command to create submission file.
 ```
+python src/create_submission.py --config config.yml --model_path results/best_checkpoint.pth
 ```
+You can get `private_submission.jsonl` file under `results` directory. For details, please read [this README.md](src/standalone_eval/README.md)
 
 ## Citation
 If you find this code useful for your research, please cite this repo:
