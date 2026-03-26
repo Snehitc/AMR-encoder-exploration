@@ -1,5 +1,8 @@
 # dcase2026_task6_baseline
-DETR-based baseline for DCASE 2026 challenge task 6.
+[QD-DETR](https://github.com/wjun0830/QD-DETR)-based baseline for DCASE 2026 challenge task 6.
+
+## Model architecture
+TBD
 
 ## Getting started
 0. Clone this repository
@@ -90,6 +93,15 @@ If you find this code useful for your research, please cite this repo:
   year = {2026},
   publisher = {GitHub},
   howpublished = {\url{https://github.com/awkrail/dcase2026_task6_baseline}}
+}
+```
+QD-DETR citation:
+```
+@inproceedings{qddetr
+    author = {WonJun Moon and Sangeek Hyun and SangUk Park and Dongchan Park and Jae-Pil Heo},
+    title = {Query-Dependent Video Representation for Moment Retrieval and Highlight Detection},
+    booktitle = {CVPR},
+    year = {2023},
 }
 ```
 
