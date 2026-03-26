@@ -10,7 +10,7 @@ git clone https://github.com/awkrail/dcase2026_task6_baseline.git
 Install pytorch, torchvision, and torchaudio based on your GPU environments. Note that the inference API is available for CPU environments. We tested the codes on Python 3.9 and CUDA 11.8:
 ```
 pip install torch==2.1.0 torchvision==0.16.0 torchaudio==2.1.0 --index-url https://download.pytorch.org/whl/cu118
-pip install -r requirement.txt
+pip install -r requirements.txt
 ```
 2. Prepare feature files
 Download [CASTELLA dataset](https://zenodo.org/records/17412176).
@@ -52,7 +52,7 @@ full: [0, 1500], 352/352=100.00 examples.
 
 Reproduce the evaluation on the `test` set:
 ```
-python src/evaluate.py --config config.yml --test --model_path results/best_checkpoint.pth
+python src/evaluate.py --config config.yml --split test --model_path results/best_checkpoint.pth
 ```
 The result is:
 ```
