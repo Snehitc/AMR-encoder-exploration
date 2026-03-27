@@ -27,6 +27,7 @@ tar -zxvf features.tar.gz
 ```
 python src/train.py --config config.yml
 ```
+If you use pre-trained model weights, use `--resume ./**/{checkpoint}.pth`
 
 1. Evaluation
 Reproduce the evaluation on the `val` set.

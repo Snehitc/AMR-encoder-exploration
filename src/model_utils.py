@@ -13,8 +13,13 @@ def count_parameters(model, verbose=True):
     """
     n_all = sum(p.numel() for p in model.parameters())
     n_trainable = sum(p.numel() for p in model.parameters() if p.requires_grad)
+    n_frozen = n_all - n_trainable
     if verbose:
-        print("Parameter Count: all {:,d}; trainable {:,d}".format(n_all, n_trainable))
+        print(
+            "Parameter Count: all {:,d}; trainable {:,d}; frozen {:,d}".format(
+                n_all, n_trainable, n_frozen
+            )
+        )
     return n_all, n_trainable
 
 
@@ -31,14 +36,17 @@ class ModelEMA(torch.nn.Module):
 
     def _update(self, model, update_fn):
         with torch.no_grad():
-            for ema_v, model_v in zip(self.module.state_dict().values(), model.state_dict().values()):
+            for ema_v, model_v in zip(
+                self.module.state_dict().values(), model.state_dict().values()
+            ):
                 if self.device is not None:
                     model_v = model_v.to(device=self.device)
                 ema_v.copy_(update_fn(ema_v, model_v))
 
     def update(self, model):
-        self._update(model, update_fn=lambda e,
-                     m: self.decay * e + (1. - self.decay) * m)
+        self._update(
+            model, update_fn=lambda e, m: self.decay * e + (1.0 - self.decay) * m
+        )
 
     def set(self, model):
         self._update(model, update_fn=lambda e, m: m)
