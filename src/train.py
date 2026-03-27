@@ -137,7 +137,7 @@ def train(
                 rename_latest_to_best(latest_file_paths)
 
 
-def main(opt):
+def main(opt, resume=None):
     logger.info("Setup config, data and model...")
     set_seed(opt.seed)
 
@@ -166,6 +166,13 @@ def main(opt):
     model, criterion, optimizer, lr_scheduler = setup_model(opt)
 
     logger.info(f"Model {model}")
+    count_parameters(model, verbose=True)
+
+    if resume is not None:
+        checkpoint = torch.load(resume, weights_only=False)
+        model.load_state_dict(checkpoint["model"])
+        logger.info("Loaded model checkpoint: {}".format(resume))
+
     logger.info("Start Training...")
     
     # start training
@@ -183,6 +190,12 @@ def main(opt):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--config', '-c', type=str, required=True, help='config path')
+    parser.add_argument(
+        "--resume",
+        "-r",
+        type=str,
+        help="specify model path for fine-tuning. If None, train the model from scratch.",
+    )
     args = parser.parse_args()
     option_manager = BaseOptions(args.config)
     option_manager.parse()
