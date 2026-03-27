@@ -41,6 +41,7 @@ python src/train.py --config config.yml
 - `config.yml` is for CASTELLA. If you train models on Clotho-Moment, use `config-pretraining.yml`
 - If you use pre-trained model weights, use `--resume ./**/{checkpoint}.pth`
 
+
 1. Evaluation
 Reproduce the evaluation on the `val` set.
 ```
