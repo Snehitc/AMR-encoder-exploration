@@ -16,18 +16,31 @@ pip install torch==2.1.0 torchvision==0.16.0 torchaudio==2.1.0 --index-url https
 pip install -r requirements.txt
 ```
 2. Prepare feature files
-Download [CASTELLA dataset](https://zenodo.org/records/17412176).
+Download [CASTELLA dataset](https://zenodo.org/records/17412176) and [Clotho-Moment dataset](https://zenodo.org/records/17129257).
 ```
 wget https://zenodo.org/records/17412176/files/features.tar.gz
 tar -zxvf features.tar.gz
 ```
 
+```
+wget https://zenodo.org/api/records/17129257/files-archive
+clotho-moment_features.tar.part-* > clotho-moment_features.tar
+tar -xvf clotho-moment_features.tar
+```
+
+These feature files are also available in HuggingFace.
+- [CASTELLA dataset](https://huggingface.co/datasets/lighthouse-emnlp2024/CASTELLA_CLAP_features)
+- [Clotho-Moment dataset](https://huggingface.co/datasets/lighthouse-emnlp2024/Clotho-Moment_CLAP_features)
+
+
 ## Training and evaluation
 0. Train a model
 ```
-python src/train.py --config config.yml
+python src/train.py --config config.yml  
 ```
-If you use pre-trained model weights, use `--resume ./**/{checkpoint}.pth`
+- `config.yml` is for CASTELLA. If you train models on Clotho-Moment, use `config-pretraining.yml`
+- If you use pre-trained model weights, use `--resume ./**/{checkpoint}.pth`
+
 
 1. Evaluation
 Reproduce the evaluation on the `val` set.
@@ -86,14 +99,15 @@ python src/create_submission.py --config config.yml --model_path results/best_ch
 You can get `private_submission.jsonl` file under `results` directory. For details, please read [this README.md](src/standalone_eval/README.md)
 
 ## Citation
-If you find this code useful for your research, please cite this repo:
+If you find this code useful for your research, please cite the original paper:
 ```
-@misc{dcase2026baseline_task6,
-  author = {Taichi Nishimura},
-  title = {dcase2026_task6_baseline},
-  year = {2026},
-  publisher = {GitHub},
-  howpublished = {\url{https://github.com/awkrail/dcase2026_task6_baseline}}
+@inproceedings{munakata2025audiomoment,
+  author = {Munakata, Hokuto and Nishimura, Taichi and Nakada, Shota and Komatsu, Tatsuya},
+  title = {Language-based Audio Moment Retrieval},
+  booktitle = {Proc. ICASSP},
+  year = {2025},
+  pages = {1-5},
+  _pdf = {https://arxiv.org/pdf/2409.15672}
 }
 ```
 QD-DETR citation:
@@ -101,7 +115,7 @@ QD-DETR citation:
 @inproceedings{qddetr
     author = {WonJun Moon and Sangeek Hyun and SangUk Park and Dongchan Park and Jae-Pil Heo},
     title = {Query-Dependent Video Representation for Moment Retrieval and Highlight Detection},
-    booktitle = {CVPR},
+    booktitle = {Proc. CVPR},
     year = {2023},
 }
 ```
@@ -112,3 +126,4 @@ This code is based on [lighthouse](https://github.com/line/lighthouse).
 
 ## Contact
 taichitary@gmail.com
+hokuto.munakata@lycorp.co.jp
