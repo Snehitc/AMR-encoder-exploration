@@ -200,4 +200,4 @@ if __name__ == '__main__':
     option_manager = BaseOptions(args.config)
     option_manager.parse()
     opt = option_manager.option
-    main(opt)
+    main(opt, args.resume)
