@@ -9,7 +9,7 @@ TBD
 ```
 git clone https://github.com/awkrail/dcase2026_task6_baseline.git
 ```
-1. Install Pytorch & depndency libraries
+1. Install Pytorch & dependency libraries
 Install pytorch, torchvision, and torchaudio based on your GPU environments. Note that the inference API is available for CPU environments. We tested the codes on Python 3.9 and CUDA 11.8:
 ```
 pip install torch==2.1.0 torchvision==0.16.0 torchaudio==2.1.0 --index-url https://download.pytorch.org/whl/cu118
@@ -24,7 +24,7 @@ tar -zxvf features.tar.gz
 
 ```
 wget https://zenodo.org/api/records/17129257/files-archive
-clotho-moment_features.tar.part-* > clotho-moment_features.tar
+cat clotho-moment_features.tar.part-* > clotho-moment_features.tar
 tar -xvf clotho-moment_features.tar
 ```
 
@@ -49,22 +49,22 @@ python src/evaluate.py --config config.yml --model_path results/best_checkpoint.
 ```
 The result is:
 ```
-2026-02-28 21:24:35.081:INFO:__main__ - Setup config, data and model...
-2026-02-28 21:24:35.088:INFO:__main__ - setup model/optimizer/scheduler
-2026-02-28 21:24:35.741:INFO:__main__ - CUDA enabled.
-2026-02-28 21:24:36.326:INFO:__main__ - Model checkpoint: results/best_checkpoint.pth
-2026-02-28 21:24:36.326:INFO:__main__ - Starting inference...
-2026-02-28 21:24:36.326:INFO:__main__ - Generate submissions
-compute st ed scores: 100%|█████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 4/4 [00:02<00:00,  1.72it/s]
-convert to multiples of clip_length=1: 100%|█████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 352/352 [00:00<00:00, 30208.19it/s]
-2026-02-28 21:24:38.670:INFO:__main__ - Saving/Evaluating before nms results
+2026-03-30 01:14:08.441:INFO:__main__ - Setup config, data and model...
+2026-03-30 01:14:08.442:INFO:__main__ - setup model/optimizer/scheduler
+2026-03-30 01:14:08.885:INFO:__main__ - CUDA enabled.
+2026-03-30 01:14:09.264:INFO:__main__ - Model checkpoint: results/best_checkpoint.pth
+2026-03-30 01:14:09.264:INFO:__main__ - Starting inference...
+2026-03-30 01:14:09.264:INFO:__main__ - Generate submissions
+compute st ed scores: 100%|███████████████████████████████████████████████████| 4/4 [00:01<00:00,  2.93it/s]
+convert to multiples of clip_length=1: 100%|███████████████████████████| 352/352 [00:00<00:00, 28908.68it/s]
+2026-03-30 01:14:10.652:INFO:__main__ - Saving/Evaluating before nms results
 full: [0, 1500], 352/352=100.00 examples.
-[eval_moment_retrieval] [full] 0.10 seconds
-2026-02-28 21:24:38.776:INFO:__main__ - metrics_no_nms OrderedDict([   ('MR-full-R1@0.5', 26.14),
-                ('MR-full-R1@0.7', 14.2),
-                ('MR-full-mAP', 11.69),
-                ('MR-full-mAP@0.5', 23.42),
-                ('MR-full-mAP@0.75', 9.58)])
+[eval_moment_retrieval] [full] 0.12 seconds
+2026-03-30 01:14:10.795:INFO:__main__ - metrics_no_nms OrderedDict([   ('MR-full-R1@0.5', 27.56),
+                ('MR-full-R1@0.7', 16.19),
+                ('MR-full-mAP', 11.44),
+                ('MR-full-mAP@0.5', 24.02),
+                ('MR-full-mAP@0.75', 10.26)])
 ```
 
 Reproduce the evaluation on the `test` set:
@@ -73,22 +73,22 @@ python src/evaluate.py --config config.yml --split test --model_path results/bes
 ```
 The result is:
 ```
-2026-02-28 21:25:10.009:INFO:__main__ - Setup config, data and model...
-2026-02-28 21:25:10.019:INFO:__main__ - setup model/optimizer/scheduler
-2026-02-28 21:25:10.654:INFO:__main__ - CUDA enabled.
-2026-02-28 21:25:11.240:INFO:__main__ - Model checkpoint: results/best_checkpoint.pth
-2026-02-28 21:25:11.240:INFO:__main__ - Starting inference...
-2026-02-28 21:25:11.240:INFO:__main__ - Generate submissions
-compute st ed scores: 100%|███████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 14/14 [00:07<00:00,  1.83it/s]
-convert to multiples of clip_length=1: 100%|███████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 1347/1347 [00:00<00:00, 31431.38it/s]
-2026-02-28 21:25:18.938:INFO:__main__ - Saving/Evaluating before nms results
+2026-03-30 01:14:48.156:INFO:__main__ - Setup config, data and model...
+2026-03-30 01:14:48.160:INFO:__main__ - setup model/optimizer/scheduler
+2026-03-30 01:14:48.599:INFO:__main__ - CUDA enabled.
+2026-03-30 01:14:48.986:INFO:__main__ - Model checkpoint: results/best_checkpoint.pth
+2026-03-30 01:14:48.986:INFO:__main__ - Starting inference...
+2026-03-30 01:14:48.986:INFO:__main__ - Generate submissions
+compute st ed scores: 100%|█████████████████████████████████████████████████| 14/14 [00:02<00:00,  5.44it/s]
+convert to multiples of clip_length=1: 100%|█████████████████████████| 1347/1347 [00:00<00:00, 28259.52it/s]
+2026-03-30 01:14:51.617:INFO:__main__ - Saving/Evaluating before nms results
 full: [0, 1500], 1347/1347=100.00 examples.
-[eval_moment_retrieval] [full] 0.28 seconds
-2026-02-28 21:25:19.230:INFO:__main__ - metrics_no_nms OrderedDict([   ('MR-full-R1@0.5', 23.09),
-                ('MR-full-R1@0.7', 10.47),
-                ('MR-full-mAP', 8.99),
-                ('MR-full-mAP@0.5', 20.14),
-                ('MR-full-mAP@0.75', 7.49)])
+[eval_moment_retrieval] [full] 0.24 seconds
+2026-03-30 01:14:51.886:INFO:__main__ - metrics_no_nms OrderedDict([   ('MR-full-R1@0.5', 23.16),
+                ('MR-full-R1@0.7', 10.32),
+                ('MR-full-mAP', 9.11),
+                ('MR-full-mAP@0.5', 20.34),
+                ('MR-full-mAP@0.75', 6.96)])
 ```
 
 ## Preparation for submission.json
@@ -97,6 +97,26 @@ Run the following command to create submission file.
 python src/create_submission.py --config config.yml --model_path results/best_checkpoint.pth
 ```
 You can get `private_submission.jsonl` file under `results` directory. For details, please read [this README.md](src/standalone_eval/README.md)
+
+## Statistics of scores.
+Scores may vary slightly due to different random seeds or minor differences in library versions. We conducted five training runs, and the resulting scores on CASTELLA `test` set (mean ± standard deviation) are as follows:
+- Only CASTELLA
+  - R1@0.5    : 22.74±0.77
+  - R1@0.7    : 10.17±0.86
+  - mAP (avg)  : 10.49±0.53
+  - mAP@0.5   : 21.93±0.57
+  - mAP@0.75  : 8.85±0.58
+- Clotho-Moment pre-training & CASTELLA fine-tuning
+  - R1@0.5    : 25.86±0.74
+  - R1@0.7    : 13.85±1.47
+  - mAP (avg)  : 11.74±0.39
+  - mAP@0.5   : 23.14±0.33
+  - mAP@0.75  : 10.54±0.54
+
+## Note
+- This recipe includes minor changes from the original paper to improve performance:
+  - Training extended from 100 to 200 epochs
+  - window sampling controlled by `max_windows` to stabilize the training
 
 ## Citation
 If you find this code useful for your research, please cite the original paper:
