@@ -125,10 +125,7 @@ def train(
             write_log(opt, epoch_i, eval_loss_meters, metrics=metrics, mode='val')            
             logger.info("metrics {}".format(pprint.pformat(metrics["brief"], indent=4)))
             
-            if opt.dset_name == 'tvsum' or opt.dset_name == 'youtube_highlight':
-                stop_score = metrics["brief"]["mAP"]
-            else:
-                stop_score = metrics["brief"]["MR-full-mAP"]
+            stop_score = metrics["brief"]["MR-full-R1@0.7"]
 
             if stop_score > prev_best_score:
                 prev_best_score = stop_score
