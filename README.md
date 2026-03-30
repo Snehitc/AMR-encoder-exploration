@@ -95,7 +95,7 @@ full: [0, 1500], 1347/1347=100.00 examples.
 ```
 
 ## Preparation for submission.json
-Run the following command to create submission file.
+Run the following command to create submission file. (Evaluation data for the submission will be publicly available on June 1, and the script will work after that.)
 ```
 python src/create_submission.py --config config.yml --model_path results/best_checkpoint.pth
 ```
