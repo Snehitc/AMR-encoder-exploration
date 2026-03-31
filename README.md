@@ -94,14 +94,14 @@ full: [0, 1500], 1347/1347=100.00 examples.
                 ('MR-full-mAP@0.75', 6.96)])
 ```
 
-## Preparation for submission.json
+## Preparation for submission.jsonl
 Run the following command to create submission file. (Evaluation data for the submission will be publicly available on June 1, and the script will work after that.)
 ```
 python src/create_submission.py --config config.yml --model_path results/best_checkpoint.pth
 ```
 You can get `private_submission.jsonl` file under `results` directory. For details, please read [this README.md](src/standalone_eval/README.md)
 
-## Statistics of scores.
+## Statistics of scores
 Scores may vary slightly due to different random seeds or minor differences in library versions. We conducted five training runs, and the resulting scores on CASTELLA `test` set (mean ± standard deviation) are as follows:
 - Only CASTELLA
   - R1@0.5    : 22.74±0.77
@@ -149,4 +149,5 @@ This code is based on [lighthouse](https://github.com/line/lighthouse).
 
 ## Contact
 taichitary@gmail.com
+
 hokuto.munakata@lycorp.co.jp
