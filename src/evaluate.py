@@ -148,7 +148,7 @@ def start_inference(opt):
 
     # dataset & data loader
     dataset_config = EasyDict(
-        data_path=opt.eval_path if opt.eval_split_name == 'val' else opt.test_path,
+        data_path=opt.val_path if opt.eval_split_name == 'val' else opt.test_path,
         ctx_mode=opt.ctx_mode,
         a_feat_dir=opt.a_feat_dir,
         q_feat_dir=opt.t_feat_dir,
