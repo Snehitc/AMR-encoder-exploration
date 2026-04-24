@@ -19,10 +19,12 @@ pip install torch==2.1.0 torchvision==0.16.0 torchaudio==2.1.0 --index-url https
 pip install -r requirements.txt
 ```
 2. Prepare feature files
-Download [CASTELLA dataset](https://zenodo.org/records/17412176) and [Clotho-Moment dataset](https://zenodo.org/records/17129257).
+Download [CASTELLA dataset](https://zenodo.org/records/18358706) and [Clotho-Moment dataset](https://zenodo.org/records/17129257).
 ```
-wget https://zenodo.org/records/17412176/files/features.tar.gz
-tar -zxvf features.tar.gz
+wget https://zenodo.org/records/18358706/files/clap.tar.gz
+wget https://zenodo.org/records/18358706/files/clap_text.tar.gz
+tar -zxvf clap.tar.gz
+tar -zxvf clap_text.tar.gz
 ```
 
 ```
