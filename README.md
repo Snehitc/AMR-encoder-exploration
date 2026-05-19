@@ -97,11 +97,13 @@ full: [0, 1500], 1347/1347=100.00 examples.
 ```
 
 ## Preparation for submission.jsonl
-Run the following command to create submission file. (Evaluation data for the submission will be publicly available on June 1, and the script will work after that.)
+**Evaluation data for the submission, such as extracted features and `./data/dcase_evaluation.jsonl` will be publicly available on June 1.**
+
+Download extracted features from [Zenodo]() and move them to `./features/clap` and `./features/clap_text`, and then run the following command to create a submission file. 
 ```
 python src/create_submission.py --config config.yml --model_path results/best_checkpoint.pth
 ```
-You can get `private_submission.jsonl` file under `results` directory. For details, please read [this README.md](src/standalone_eval/README.md)
+You can get `submission.jsonl` file under `results` directory. For details, please read [this README.md](src/standalone_eval/README.md)
 
 ## Statistics of scores
 Scores may vary slightly due to different random seeds or minor differences in library versions. We conducted five training runs, and the resulting scores on CASTELLA `test` set (mean ± standard deviation) are as follows:

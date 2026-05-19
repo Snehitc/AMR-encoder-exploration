@@ -52,7 +52,7 @@ clip_length: 1
 train_path: data/castella_train_release.jsonl
 val_path: data/castella_val_release.jsonl
 test_path: data/castella_test_release.jsonl
-submission_path: private/dcase2026_private.jsonl
+submission_path: data/dcase2026_evaluation.jsonl
 max_q_l: 32
 max_a_l: 300
 
@@ -60,8 +60,8 @@ max_a_l: 300
 ctx_mode: audio_tef
 a_feat_dir: features/castella/clap
 t_feat_dir: features/castella/clap_text
-a_sub_feat_dir: private/feature/clap
-t_sub_feat_dir: private/feature/clap_text
+a_sub_feat_dir: features/dcase2026_evaluation/clap
+t_sub_feat_dir: features/dcase2026_evaluation/clap_text
 a_feat_type: clap
 t_feat_type: clap
 a_feat_dim: 768
