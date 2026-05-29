@@ -99,7 +99,7 @@ full: [0, 1500], 1347/1347=100.00 examples.
 ## Preparation for submission.jsonl
 **Evaluation data for the submission, such as extracted features and `./data/dcase_evaluation.jsonl` will be publicly available on June 1.**
 
-Download extracted features from [Zenodo]() and move them to `./features/clap` and `./features/clap_text`, and then run the following command to create a submission file. 
+Download extracted features from [Zenodo](https://zenodo.org/records/20450254) or  [HuggingFace](https://huggingface.co/datasets/lighthouse-emnlp2024/AudioMomentRetrievalFromLongAudio_DCASE2026EvaluationData), and move them to `./features/clap` and `./features/clap_text`, and then run the following command to create a submission file. 
 ```
 python src/create_submission.py --config config.yml --model_path results/best_checkpoint.pth
 ```
