@@ -35,23 +35,6 @@ logging.basicConfig(format="%(asctime)s.%(msecs)03d:%(levelname)s:%(name)s - %(m
                     level=logging.INFO)
 
 
-def eval_epoch_post_processing(submission, opt, gt_data, save_submission_filename):
-    logger.info("Saving/Evaluating before nms results")
-    submission_path = os.path.join(opt.results_dir, save_submission_filename)
-    save_jsonl(submission, submission_path)
-
-    if opt.eval_split_name in ["val", "test"]:
-        metrics = eval_submission(submission, gt_data)
-        save_metrics_path = submission_path.replace(".jsonl", "_metrics.json")
-        save_json(metrics, save_metrics_path, save_pretty=True, sort_keys=False)
-        latest_file_paths = [submission_path, save_metrics_path]
-    else:
-        metrics = None
-        latest_file_paths = [submission_path, ]
-
-    return metrics, latest_file_paths
-
-
 @torch.no_grad()
 def compute_mr_results(model, eval_loader, opt, criterion=None):
     batch_input_fn = cg_detr_prepare_batch_inputs if opt.model_name == 'cg_detr' else prepare_batch_inputs
@@ -162,7 +145,7 @@ def start_inference(opt):
     logger.info("Model checkpoint: {}".format(opt.model_path))
 
     logger.info("Starting inference...")
-    save_submission_filename = "private_submission.jsonl"
+    save_submission_filename = "submission.jsonl"
 
     with torch.no_grad():
         eval_epoch(model, eval_dataset, opt, save_submission_filename, criterion)
@@ -179,5 +162,4 @@ if __name__ == '__main__':
     option_manager.parse()
     opt = option_manager.option
     opt.model_path = args.model_path
-    opt.eval_split_name = "private"
     start_inference(opt)

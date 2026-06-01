@@ -15,7 +15,7 @@ This command will use [evaluate.py](src/evaluate.py) to evaluate the provided pr
 ```
 python src/create_submission.py --config config.yml --model_path results/best_checkpoint.pth
 ```
-This command creates `private_submission.json`. Submit this file to us.
+This command creates `submission.json`. Submit this file to us.
 
 ### Format
 The prediction file [sample_val_preds.jsonl](sample_val_preds.jsonl) is in [JSON Line](https://jsonlines.org/) format, each row of the files can be loaded as a single `dict` in Python.
