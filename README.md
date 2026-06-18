@@ -1,3 +1,10 @@
+# 🚧 Under Construction 🚧
+
+- This repo is forked from the baseline of DCASE task 6, and I'll modify part of the code in this repository to replicate my experiments as our submission to the challenge.\
+- Please wait for modifications before using. \
+- `Under Construction` tag will be removed once updates are completed.
+
+<!---
 # dcase2026_task6_baseline
 [QD-DETR](https://github.com/wjun0830/QD-DETR)-based baseline for DCASE 2026 challenge task 6.
 
@@ -155,3 +162,4 @@ This code is based on [lighthouse](https://github.com/line/lighthouse).
 taichitary@gmail.com
 
 hokuto.munakata@lycorp.co.jp
+--->
