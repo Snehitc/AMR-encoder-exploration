@@ -1,8 +1,8 @@
 # 🚧 Under Construction 🚧
 
-- This repo is forked from the baseline of DCASE task 6, and I'll modify part of the code in this repository to replicate my experiments as our submission to the challenge.\
-- Please wait for modifications before using. \
-- `Under Construction` tag will be removed once updates are completed.
+- This repo is forked from the baseline of DCASE task 6, and I'll modify part of the code in this repository to replicate my experiments as our submission to the challenge.
+- Please wait for modifications before using it.
+- The `Under Construction` tag will be removed once updates are completed.
 
 <!---
 # dcase2026_task6_baseline
