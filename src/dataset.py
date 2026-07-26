@@ -15,7 +15,8 @@ import torch.nn as nn
 
 logger = logging.getLogger(__name__)
 
-
+# [Modified by Snehit]: Fetch features from ensemble models
+# Functions modified: 1. _get_query_feat_by_qid, 2. _get_audio_feat_by_vid
 class StartEndDataset(Dataset):
     """One line in data loaded from data_path."
     {
