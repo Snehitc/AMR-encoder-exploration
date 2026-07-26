@@ -60,6 +60,13 @@ class QDDETR(nn.Module):
         span_pred_dim = 2
         self.span_embed = MLP(hidden_dim, hidden_dim, span_pred_dim, 3)
         self.class_embed = nn.Linear(hidden_dim, 2)  # 0: background, 1: foreground
+
+        # --- Hamza: Start: NEW IOU HEAD ---
+        # A lightweight MLP to predict the quality of the boundary
+        self.iou_embed = MLP(hidden_dim, hidden_dim, 1, 2)
+        # --- Hamza: End ---------------
+
+
         self.use_txt_pos = use_txt_pos
         self.n_input_proj = n_input_proj
         self.query_embed = nn.Embedding(num_queries, 2)
@@ -103,6 +110,18 @@ class QDDETR(nn.Module):
                - "aux_outputs": Optional, only returned when auxilary losses are activated. It is a list of
                                 dictionnaries containing the two above keys for each decoder layer.
         """
+        if self.training:
+            Shape_without_last2 = [s if i!= len(src_aud.shape)-1 else s-2 for i, s in enumerate(src_aud.shape)]
+            Shape_only_last2 = [s if i!= len(src_aud.shape)-1 else 2 for i, s in enumerate(src_aud.shape)]
+
+            drop_mask = (torch.rand(Shape_without_last2, device=src_aud.device) > 0.15).float()
+            no_mask_last2 = (torch.ones(Shape_only_last2, device=src_aud.device)).float()
+            drop_mask = torch.cat([drop_mask, no_mask_last2], dim=2)
+
+            src_aud = src_aud * drop_mask
+            #drop_mask = (torch.rand(src_aud.shape[:2], device=src_aud.device) > 0.15).float()
+            #src_aud = src_aud * drop_mask.unsqueeze(-1)
+
         src_aud = self.input_aud_proj(src_aud)
         src_txt = self.input_txt_proj(src_txt)
         src = torch.cat([src_aud, src_txt], dim=1)  # (bsz, L_aud+L_txt, d)
@@ -131,7 +150,15 @@ class QDDETR(nn.Module):
         outputs_coord = tmp + reference_before_sigmoid
         if self.span_loss_type == "l1":
             outputs_coord = outputs_coord.sigmoid()
-        out = {'pred_logits': outputs_class[-1], 'pred_spans': outputs_coord[-1]}
+
+        # --- Hamza: Start NEW IOU HEAD PREDICTION ---
+        outputs_iou = self.iou_embed(hs).sigmoid()
+        # --- Hamza: End ----------------------------
+
+        # --- Hamza: Start ----------------------------
+        out = {'pred_logits': outputs_class[-1], 'pred_spans': outputs_coord[-1], 'pred_iou': outputs_iou[-1], 'hs': hs[-1], 'aud_mem': memory[:, :src_aud.shape[1]]}
+        # --- Hamza: End ----------------------------
+        #out = {'pred_logits': outputs_class[-1], 'pred_spans': outputs_coord[-1]}
 
         txt_mem = memory[:, src_aud.shape[1]:]  # (bsz, L_txt, d)
         aud_mem = memory[:, :src_aud.shape[1]]  # (bsz, L_aud, d)
@@ -153,6 +180,10 @@ class QDDETR(nn.Module):
         out["saliency_scores_neg"] = (torch.sum(self.saliency_proj1(aud_mem_neg) * self.saliency_proj2(memory_global_neg).unsqueeze(1), dim=-1) / np.sqrt(self.hidden_dim))
         out["audio_mask"] = src_aud_mask
         if self.aux_loss:
+            '''
+            out['aux_outputs'] = [
+                {'pred_logits': a, 'pred_spans': b, 'pred_iou': c} for a, b, c in zip(outputs_class[:-1], outputs_coord[:-1], outputs_iou[:-1])]
+            '''
             out['aux_outputs'] = [
                 {'pred_logits': a, 'pred_spans': b} for a, b in zip(outputs_class[:-1], outputs_coord[:-1])]
         return out
@@ -213,16 +244,43 @@ class SetCriterion(nn.Module):
         tgt_spans = torch.cat([t['spans'][i] for t, (_, i) in zip(targets, indices)], dim=0)  # (#spans, 2)
         if self.span_loss_type == "l1":
             loss_span = F.l1_loss(src_spans, tgt_spans, reduction='none')
+            # --- Hmaza: Start ---
+            loss_span = loss_span.mean()
+            # --- Hmaza: End ---
             loss_giou = 1 - torch.diag(generalized_temporal_iou(span_cxw_to_xx(src_spans), span_cxw_to_xx(tgt_spans)))
+
+            # --- Hmaza: Start NEW IOU CALIBRATION LOSS ---
+            if 'pred_iou' in outputs:
+                src_ious = outputs['pred_iou'][idx].squeeze(-1)
+                
+                # Compute Exact strict IoU
+                src_xx = span_cxw_to_xx(src_spans)
+                tgt_xx = span_cxw_to_xx(tgt_spans)
+                inter = (torch.min(src_xx[:, 1], tgt_xx[:, 1]) - torch.max(src_xx[:, 0], tgt_xx[:, 0])).clamp(min=0)
+                union = (src_xx[:, 1] - src_xx[:, 0]) + (tgt_xx[:, 1] - tgt_xx[:, 0]) - inter
+                exact_iou = inter / (union + 1e-6)
+                
+                # MSE loss against real boundary quality
+                loss_iou = F.mse_loss(src_ious, exact_iou.detach())
+            else:
+                loss_iou = torch.tensor(0.0, device=loss_span.device)
+            # Hamza: End --------------------------------
+
         else:  # ce
             n_spans = src_spans.shape[0]
             src_spans = src_spans.view(n_spans, 2, self.max_v_l).transpose(1, 2)
             loss_span = F.cross_entropy(src_spans, tgt_spans, reduction='none')
             loss_giou = loss_span.new_zeros([1])
+            # --- Hmaza: Start ---
+            loss_iou = loss_span.new_zeros([1])
+            # --- Hmaza: End ---
 
         losses = {}
         losses['loss_span'] = loss_span.mean()
         losses['loss_giou'] = loss_giou.mean()
+        # --- Hmaza: Start ---
+        losses['loss_iou'] = loss_iou
+        # --- Hmaza: End ---
         return losses
 
     def loss_labels(self, outputs, targets, indices, log=True):
@@ -430,8 +488,8 @@ def build_model(args):
         position_embedding,
         txt_position_embedding,
         max_a_l=args.max_a_l,
-        txt_dim=args.t_feat_dim,
-        aud_dim=args.a_feat_dim,
+        txt_dim=sum(args[_feature_model_text].t_feat_dim for _feature_model_text in args.feature_model_text), #args.t_feat_dim
+        aud_dim=sum(args[_feature_model_audio].a_feat_dim for _feature_model_audio in args.feature_model_audio), #args.a_feat_dim
         aux_loss=args.aux_loss,
         num_queries=args.num_queries,
         input_dropout=args.input_dropout,
@@ -444,7 +502,8 @@ def build_model(args):
         "loss_span": args.span_loss_coef,
         "loss_giou": args.giou_loss_coef,
         "loss_label": args.label_loss_coef,
-        "loss_saliency": args.lw_saliency
+        "loss_saliency": args.lw_saliency,
+        "loss_iou": 2.0  # Weight added for the new IoU calibration loss
     }
 
     if args.aux_loss:
