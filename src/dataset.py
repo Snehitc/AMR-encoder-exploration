@@ -82,6 +82,7 @@ class StartEndDataset(Dataset):
         model_inputs["audio_feat"] = self._get_audio_feat_by_vid(meta["vid"])
         ctx_l = len(model_inputs["audio_feat"])
 
+        
         if self.use_tef:
             tef_st = torch.arange(0, ctx_l, 1.0) / ctx_l
             tef_ed = tef_st + 1.0 / ctx_l
@@ -294,15 +295,26 @@ class StartEndDataset(Dataset):
         return windows
 
     def _get_query_feat_by_qid(self, qid):
-        q_feat_path = join(self.q_feat_dir, f"qid{qid}.npz")
-        q_feat = np.load(q_feat_path)['last_hidden_state']
+        _q_feats = []
+        for _q_feat_dir in self.q_feat_dir:
+            q_feat_path = join(_q_feat_dir, f"qid{qid}.npz")
+            q_feat = np.mean(np.load(q_feat_path)['last_hidden_state'], axis=0, keepdims=True)
+            _q_feats.append(q_feat)
+        q_feat = np.concatenate(_q_feats, axis=-1)
         return q_feat
 
+
     def _get_audio_feat_by_vid(self, vid):
-        _feat_path = join(self.a_feat_dir, f"{vid}.npz")
-        _feat = np.load(_feat_path)["features"][:self.max_a_l].astype(np.float32)
-        _feat = l2_normalize_np_array(_feat)
-        return torch.from_numpy(_feat)
+        _feats = []
+        for _a_feat_dir in self.a_feat_dir:
+            _feat_path = join(_a_feat_dir, f"{vid}.npz")
+            _feat = np.load(_feat_path)["features"][:self.max_a_l].astype(np.float32)
+            _feats.append(_feat)
+        a_feat = np.concatenate(_feats, axis=-1)
+        a_feat = l2_normalize_np_array(a_feat)
+        return torch.from_numpy(a_feat)
+
+
 
 
 def start_end_collate(batch):
