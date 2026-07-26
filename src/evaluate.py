@@ -35,9 +35,49 @@ logging.basicConfig(format="%(asctime)s.%(msecs)03d:%(levelname)s:%(name)s - %(m
                     level=logging.INFO)
 
 
+
+def wbf_1d(predictions, iou_thr=0.70):
+    """
+    Weighted Boxes Fusion for 1D temporal boundaries.
+    Mathematically fuses overlapping predictions to tighten boundaries.
+    predictions: list of [st, ed, score]
+    """
+    if not predictions:
+        return []
+    
+    # Sort by confidence descending
+    predictions = sorted(predictions, key=lambda x: x[2], reverse=True)
+    fused_boxes = []
+    
+    for box in predictions:
+        st, ed, score = box[0], box[1], box[2]
+        best_iou, best_idx = 0.0, -1
+        
+        # Find best overlapping box cluster
+        for idx, f_box in enumerate(fused_boxes):
+            f_st, f_ed, f_max_score, weight_sum = f_box
+            inter = max(0, min(ed, f_ed) - max(st, f_st))
+            union = (ed - st) + (f_ed - f_st) - inter
+            iou = inter / (union + 1e-6)
+            if iou > iou_thr and iou > best_iou:
+                best_iou, best_idx = iou, idx
+                
+        if best_idx != -1:
+            # Fuse the coordinates based on confidence weights
+            f_st, f_ed, f_max_score, weight_sum = fused_boxes[best_idx]
+            new_weight = weight_sum + score
+            new_st = (f_st * weight_sum + st * score) / new_weight
+            new_ed = (f_ed * weight_sum + ed * score) / new_weight
+            # Keep max score of the cluster for prediction confidence
+            fused_boxes[best_idx] = [new_st, new_ed, max(f_max_score, score), new_weight] 
+        else:
+            fused_boxes.append([st, ed, score, score])
+            
+    return [[float(f"{b[0]:.4f}"), float(f"{b[1]:.4f}"), float(f"{b[2]:.4f}")] for b in fused_boxes]
+
 def eval_epoch_post_processing(submission, opt, gt_data, save_submission_filename):
     logger.info("Saving/Evaluating before nms results")
-    submission_path = os.path.join(opt.results_dir, save_submission_filename)
+    submission_path = os.path.join(opt.results_dir, opt.feat_model_combination, save_submission_filename)
     save_jsonl(submission, submission_path)
 
     if opt.eval_split_name in ["val", "test"]:
@@ -68,11 +108,21 @@ def compute_mr_results(model, eval_loader, opt, criterion=None):
         prob = F.softmax(outputs["pred_logits"], -1)  # (batch_size, #queries, #classes=2)
         scores = prob[..., 0].cpu()  # * (batch_size, #queries)  foreground label is 0, we directly take it
 
+        # Hamza: --- IOU RE-RANKING ---
+        if "pred_iou" in outputs:
+            pred_iou = outputs["pred_iou"].cpu().squeeze(-1)
+            alpha = 1.5  # Soft calibration multiplier tuning parameter
+            scores = scores * (pred_iou ** alpha)
+        # ---------------------------
+
         for idx, (meta, spans, score) in enumerate(zip(query_meta, pred_spans, scores)):            
             spans = span_cxw_to_xx(spans) * meta["duration"]
             cur_ranked_preds = torch.cat([spans, score[:, None]], dim=1).tolist()
-            cur_ranked_preds = sorted(cur_ranked_preds, key=lambda x: x[2], reverse=True)
-            cur_ranked_preds = [[float(f"{e:.4f}") for e in row] for row in cur_ranked_preds]
+            cur_ranked_preds = sorted(cur_ranked_preds, key=lambda x: x[2], reverse=True)     # Hamza: Commented
+            cur_ranked_preds = [[float(f"{e:.4f}") for e in row] for row in cur_ranked_preds] # Hamza: Commented
+
+            # Hamza: Fuse overlapping boxes to tighten the final temporal boundary
+            #cur_ranked_preds = wbf_1d(cur_ranked_preds, iou_thr=0.55)
 
             cur_query_pred = dict(
                 qid=meta["qid"],
@@ -127,6 +177,7 @@ def eval_epoch(model, eval_dataset, opt, save_submission_filename, criterion):
 
 
 def setup_model(opt):
+    print(opt.feature_model_text)
     """setup model/optimizer/scheduler and load checkpoints when needed"""
     logger.info("setup model/optimizer/scheduler")
     model, criterion = build_model_qd_detr(opt)
@@ -149,11 +200,11 @@ def start_inference(opt):
     # dataset & data loader
     dataset_config = EasyDict(
         data_path=opt.val_path if opt.eval_split_name == 'val' else opt.test_path,
-        ctx_mode=opt.ctx_mode,
-        a_feat_dir=opt.a_feat_dir,
-        q_feat_dir=opt.t_feat_dir,
+        ctx_mode=opt[opt.feature_model_audio[0]].ctx_mode,
+        a_feat_dir=[opt[_feature_model_audio].a_feat_dir for _feature_model_audio in opt.feature_model_audio],
+        q_feat_dir=[opt[_feature_model_text].t_feat_dir for _feature_model_text in opt.feature_model_text],
         q_feat_type="last_hidden_state",
-        a_feat_type=opt.a_feat_type,
+        a_feat_type=opt[opt.feature_model_audio[0]].a_feat_type,
         max_q_l=opt.max_q_l,
         max_a_l=opt.max_a_l,
         clip_len=opt.clip_length,
@@ -161,7 +212,7 @@ def start_inference(opt):
         span_loss_type=opt.span_loss_type,
         load_labels=True,
     )
-    
+
     eval_dataset = StartEndDataset(**dataset_config)
     model, criterion, _, _ = setup_model(opt)
     checkpoint = torch.load(opt.model_path, weights_only=False)
@@ -182,8 +233,13 @@ if __name__ == '__main__':
     parser.add_argument('--config', '-c', type=str, required=True, help='config path')
     parser.add_argument('--model_path', '-m', type=str, required=True, help='model checkpoint path')
     parser.add_argument('--split', '-s', type=str, default='val', choices=['val', 'test'], help='split name: val or test')
+
+    parser.add_argument('--feature_model_audio', nargs='+', type=str, required=True, help='[MSCLAP, M2D, LAION, OpenFLAM, WavLM, BEATs]')
+    parser.add_argument('--feature_model_text', nargs='+', type=str, required=True, help='[MSCLAP, M2D, LAION, OpenFLAM, RoBERTa, T5]')
+    
     args = parser.parse_args()
-    option_manager = BaseOptions(args.config)
+    
+    option_manager = BaseOptions(args)
     option_manager.parse()
     opt = option_manager.option
 
