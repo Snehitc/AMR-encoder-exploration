@@ -25,10 +25,12 @@ import copy
 from basic_utils import mkdirp, load_json, save_json, make_zipfile, dict_to_markdown
 from easydict import EasyDict
 
-
+# [Modified by Snehit]: create ensemble features dirs
 class BaseOptions(object):
-    def __init__(self, config_path):
-        self.config_path = config_path
+    def __init__(self, args):
+        self.config_path = args.config
+        self.feature_model_audio = args.feature_model_audio
+        self.feature_model_text = args.feature_model_text
         self.opt = {}
 
 
@@ -51,6 +53,15 @@ class BaseOptions(object):
             self.opt.update(yml)
 
         self.opt = EasyDict(self.opt)
-        self.opt.ckpt_filepath = os.path.join(self.opt.results_dir, self.opt.ckpt_filename)
-        self.opt.train_log_filepath = os.path.join(self.opt.results_dir, self.opt.train_log_filename)
-        self.opt.eval_log_filepath = os.path.join(self.opt.results_dir, self.opt.eval_log_filename)
+        self.opt.feat_model_combination = f"A-{'_'.join(self.feature_model_audio)}_T-{'_'.join(self.feature_model_text)}"
+        self.opt.feature_model_audio = self.feature_model_audio
+        self.opt.feature_model_text = self.feature_model_text
+
+        self.opt.ckpt_filepath = os.path.join(self.opt.results_dir, self.opt.feat_model_combination, self.opt.ckpt_filename)
+        os.makedirs(os.path.dirname(self.opt.ckpt_filepath), exist_ok=True)
+
+        self.opt.train_log_filepath = os.path.join(self.opt.results_dir, self.opt.feat_model_combination, self.opt.train_log_filename)
+        os.makedirs(os.path.dirname(self.opt.train_log_filepath), exist_ok=True)
+
+        self.opt.eval_log_filepath = os.path.join(self.opt.results_dir, self.opt.feat_model_combination, self.opt.eval_log_filename)
+        os.makedirs(os.path.dirname(self.opt.eval_log_filepath), exist_ok=True)
