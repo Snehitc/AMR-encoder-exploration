@@ -19,7 +19,7 @@ import sys
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 from config import BaseOptions
-from dataset import StartEndDataset, start_end_collate, prepare_batch_inputs
+from dataset import start_end_collate, prepare_batch_inputs, StartEndDataset
 from evaluate import eval_epoch, start_inference, setup_model
 
 from basic_utils import AverageMeter, dict_to_markdown, write_log, save_checkpoint, rename_latest_to_best
@@ -141,11 +141,11 @@ def main(opt, resume=None):
     # dataset & data loader
     dataset_config = EasyDict(
         data_path=opt.train_path,
-        ctx_mode=opt.ctx_mode,
-        a_feat_dir=opt.a_feat_dir,
-        q_feat_dir=opt.t_feat_dir,
+        ctx_mode=opt[opt.feature_model_audio[0]].ctx_mode,
+        a_feat_dir=[opt[_feature_model_audio].a_feat_dir for _feature_model_audio in opt.feature_model_audio],
+        q_feat_dir=[opt[_feature_model_text].t_feat_dir for _feature_model_text in opt.feature_model_text],
         q_feat_type="last_hidden_state",
-        a_feat_type=opt.a_feat_type,
+        a_feat_type=opt[opt.feature_model_audio[0]].a_feat_type,
         max_q_l=opt.max_q_l,
         max_a_l=opt.max_a_l,
         clip_len=opt.clip_length,
@@ -154,9 +154,10 @@ def main(opt, resume=None):
         load_labels=True,
     )
 
+
     train_dataset = StartEndDataset(**dataset_config)    
     copied_eval_config = copy.deepcopy(dataset_config)
-    copied_eval_config.data_path = opt.eval_path
+    copied_eval_config.data_path = opt.val_path
     eval_dataset = StartEndDataset(**copied_eval_config)
     
     # prepare model
@@ -193,8 +194,12 @@ if __name__ == '__main__':
         type=str,
         help="specify model path for fine-tuning. If None, train the model from scratch.",
     )
+    parser.add_argument('--feature_model_audio', nargs='+', type=str, required=True, help='[MSCLAP, M2D, LAION, OpenFLAM, WavLM, BEATs]')
+    parser.add_argument('--feature_model_text', nargs='+', type=str, required=True, help='[MSCLAP, M2D, LAION, OpenFLAM, RoBERTa, T5]')
+    
     args = parser.parse_args()
-    option_manager = BaseOptions(args.config)
+    option_manager = BaseOptions(args)
     option_manager.parse()
     opt = option_manager.option
+  
     main(opt, args.resume)
