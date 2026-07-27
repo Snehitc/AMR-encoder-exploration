@@ -28,7 +28,7 @@ conda activate AMR
 1. Install Pytorch & dependency libraries
 Install pytorch, torchvision, and torchaudio based on your GPU environments. Note that the inference API is available for CPU environments. We tested the codes on Python 3.9 and CUDA 11.8:
 ```
-pip install torch==2.6.0 torchvision==0.21.0 torchaudio==2.6.0 --index-url https://download.pytorch.org/whl/cu124
+pip install torch==2.6.0 --index-url https://download.pytorch.org/whl/cu124
 ```
 ```
 pip install -r requirements.txt
