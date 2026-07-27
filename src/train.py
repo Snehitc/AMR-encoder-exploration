@@ -134,6 +134,7 @@ def train(
                 rename_latest_to_best(latest_file_paths)
 
 
+# [Modified by Snehit]: Modification - 1. EasyDict, 2. StartEndDataset, 3. setup_model (updated objects deal with ensemble features)
 def main(opt, resume=None):
     logger.info("Setup config, data and model...")
     set_seed(opt.seed)
@@ -194,11 +195,12 @@ if __name__ == '__main__':
         type=str,
         help="specify model path for fine-tuning. If None, train the model from scratch.",
     )
+    # [Modified by Snehit]: New inputs - 1. feature_model_audio, 2. feature_model_text
     parser.add_argument('--feature_model_audio', nargs='+', type=str, required=True, help='[MSCLAP, M2D, LAION, OpenFLAM, WavLM, BEATs]')
     parser.add_argument('--feature_model_text', nargs='+', type=str, required=True, help='[MSCLAP, M2D, LAION, OpenFLAM, RoBERTa, T5]')
     
     args = parser.parse_args()
-    option_manager = BaseOptions(args)
+    option_manager = BaseOptions(args)   # [Modified by Snehit]: BaseOptions
     option_manager.parse()
     opt = option_manager.option
   
