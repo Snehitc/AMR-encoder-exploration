@@ -10,6 +10,7 @@
 [![Paper](https://img.shields.io/badge/Paper-DCASE-green)](https://dcase.community/documents/challenge2026/technical_reports/DCASE2026_Chunarkar_82_t6.pdf)
 [![ClothoMoment](https://img.shields.io/badge/Features-Clotho--Moment-blue?logo=zenodo)](https://zenodo.org/records/20770460)
 [![CASTELLA](https://img.shields.io/badge/Features-CASTELLA-blue?logo=zenodo)](https://zenodo.org/records/20772071)
+[![Checkpoints](https://img.shields.io/badge/Model-Checkpoints-navy?logo=zenodo)]()
 
 # Pipeline
 [Figure of Pipeline]
