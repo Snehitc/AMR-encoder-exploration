@@ -1,14 +1,14 @@
 # base config
 seed: 2023
 device: 'cuda'
-num_workers: 4
+num_workers: 0
 
 lr: 0.0001
 lr_drop: 400
 wd: 0.0001
 n_epoch: 200
-bsz: 32
-eval_bsz: 100
+bsz: 1024
+eval_bsz: 1024
 grad_clip: 0.1
 max_windows: 5
 clip_length: 1
@@ -44,27 +44,89 @@ aux_loss: True
 
 model_ema: False
 ema_decay: 0.9
-results_dir: results_pretraining
+results_dir: /work/u5049807/dcase2026_task6_baseline/results_pretraining
 
 # clotho-moment-specific config
 dset_name: clotho-moment
 clip_length: 1
-train_path: data/clotho_moment_train_release.jsonl
-val_path: data/clotho_moment_val_release.jsonl
-test_path: data/clotho_moment_test_release.jsonl
-submission_path: private/dcase2026_private.jsonl
+train_path: /work/u5049807/dcase2026_task6_baseline/data/clotho_moment_train_release.jsonl
+val_path: /work/u5049807/dcase2026_task6_baseline/data/clotho_moment_val_release.jsonl
+test_path: /work/u5049807/dcase2026_task6_baseline/data/clotho_moment_test_release.jsonl
+submission_path: /work/u5049807/dcase2026_task6_baseline/private/dcase2026_private.jsonl
 max_q_l: 32
 max_a_l: 300
 
 # feature-specific config 
-ctx_mode: audio_tef
-a_feat_dir: features/clotho-moment/clap
-t_feat_dir: features/clotho-moment/clap_text
-a_sub_feat_dir: private/feature/clap
-t_sub_feat_dir: private/feature/clap_text
-a_feat_type: clap
-t_feat_type: clap
-a_feat_dim: 768
-t_feat_dim: 768
+MSCLAP:
+  ctx_mode: audio_tef
+  a_feat_dir: /work/u5049807/dcase2026_task6_baseline/features/clotho_moment/MSCLAP/clap
+  t_feat_dir: /work/u5049807/dcase2026_task6_baseline/features/clotho_moment/MSCLAP/clap_text
+  a_sub_feat_dir: /work/u5049807/dcase2026_task6_baseline/private/feature/clotho_moment/MSCLAP/clap
+  t_sub_feat_dir: /work/u5049807/dcase2026_task6_baseline/private/feature/clotho_moment/MSCLAP/clap_text
+  a_feat_type: clap
+  t_feat_type: clap
+  a_feat_dim: 768
+  t_feat_dim: 768
+
+M2D:
+  ctx_mode: audio_tef
+  a_feat_dir: /work/u5049807/dcase2026_task6_baseline/features/clotho_moment/M2D/M2D_audio
+  t_feat_dir: /work/u5049807/dcase2026_task6_baseline/features/clotho_moment/M2D/M2D_text
+  a_sub_feat_dir: /work/u5049807/dcase2026_task6_baseline/private/feature/clotho_moment/M2D/M2D_audio
+  t_sub_feat_dir: /work/u5049807/dcase2026_task6_baseline/private/feature/clotho_moment/M2D/M2D_text
+  a_feat_type: M2D
+  t_feat_type: M2D
+  a_feat_dim: 768
+  t_feat_dim: 768
+
+LAION:
+  ctx_mode: audio_tef
+  a_feat_dir: /work/u5049807/dcase2026_task6_baseline/features/clotho_moment/LAION/LAION_audio
+  t_feat_dir: /work/u5049807/dcase2026_task6_baseline/features/clotho_moment/LAION/LAION_text
+  a_sub_feat_dir: /work/u5049807/dcase2026_task6_baseline/private/feature/clotho_moment/LAION/LAION_audio
+  t_sub_feat_dir: /work/u5049807/dcase2026_task6_baseline/private/feature/clotho_moment/LAION/LAION_text
+  a_feat_type: LAION
+  t_feat_type: LAION
+  a_feat_dim: 512
+  t_feat_dim: 512
+
+OpenFLAM:
+  ctx_mode: audio_tef
+  a_feat_dir: /work/u5049807/dcase2026_task6_baseline/features/clotho_moment/OpenFLAM/OpenFLAM_audio
+  t_feat_dir: /work/u5049807/dcase2026_task6_baseline/features/clotho_moment/OpenFLAM/OpenFLAM_text
+  a_sub_feat_dir: /work/u5049807/dcase2026_task6_baseline/private/feature/clotho_moment/OpenFLAM/OpenFLAM_audio
+  t_sub_feat_dir: /work/u5049807/dcase2026_task6_baseline/private/feature/clotho_moment/OpenFLAM/OpenFLAM_text
+  a_feat_type: OpenFLAM
+  t_feat_type: OpenFLAM
+  a_feat_dim: 512
+  t_feat_dim: 512
+
+WavLM:
+  ctx_mode: audio_tef
+  a_feat_dir: /work/u5049807/dcase2026_task6_baseline/features/clotho_moment/WavLM/WavLM_audio
+  a_sub_feat_dir: /work/u5049807/dcase2026_task6_baseline/private/feature/clotho_moment/WavLM/WavLM_audio
+  a_feat_type: WavLM
+  a_feat_dim: 768
+
+BEATs:
+  ctx_mode: audio_tef
+  a_feat_dir: /work/u5049807/dcase2026_task6_baseline/features/clotho_moment/BEATs/BEATs_audio
+  a_sub_feat_dir: /work/u5049807/dcase2026_task6_baseline/private/feature/clotho_moment/BEATs/BEATs_audio
+  a_feat_type: BEATs
+  a_feat_dim: 768
+
+RoBERTa:
+  ctx_mode: audio_tef
+  t_feat_dir: /work/u5049807/dcase2026_task6_baseline/features/clotho_moment/RoBERTa/RoBERTa_text
+  t_sub_feat_dir: /work/u5049807/dcase2026_task6_baseline/private/feature/clotho_moment/RoBERTa/RoBERTa_text
+  t_feat_type: RoBERTa
+  t_feat_dim: 768
+
+T5:
+  ctx_mode: audio_tef
+  t_feat_dir: /work/u5049807/dcase2026_task6_baseline/features/clotho_moment/T5/T5_text
+  t_sub_feat_dir: /work/u5049807/dcase2026_task6_baseline/private/feature/clotho_moment/T5/T5_text
+  t_feat_type: T5
+  t_feat_dim: 768
 
 model_name: qd_detr
