@@ -87,28 +87,24 @@ OpenFLAM:
 WavLM:
   ctx_mode: audio_tef
   a_feat_dir: /work/u5049807/dcase2026_task6_baseline/features/castella/WavLM/WavLM_audio
-  a_sub_feat_dir: /work/u5049807/dcase2026_task6_baseline/private/feature/castella/WavLM/WavLM_audio
   a_feat_type: WavLM
   a_feat_dim: 768
 
 BEATs:
   ctx_mode: audio_tef
   a_feat_dir: /work/u5049807/dcase2026_task6_baseline/features/castella/BEATs/BEATs_audio
-  a_sub_feat_dir: /work/u5049807/dcase2026_task6_baseline/private/feature/castella/BEATs/BEATs_audio
   a_feat_type: BEATs
   a_feat_dim: 768
 
 RoBERTa:
   ctx_mode: audio_tef
   t_feat_dir: /work/u5049807/dcase2026_task6_baseline/features/castella/RoBERTa/RoBERTa_text
-  t_sub_feat_dir: /work/u5049807/dcase2026_task6_baseline/private/feature/castella/RoBERTa/RoBERTa_text
   t_feat_type: RoBERTa
   t_feat_dim: 768
 
 T5:
   ctx_mode: audio_tef
   t_feat_dir: /work/u5049807/dcase2026_task6_baseline/features/castella/T5/T5_text
-  t_sub_feat_dir: /work/u5049807/dcase2026_task6_baseline/private/feature/castella/T5/T5_text
   t_feat_type: T5
   t_feat_dim: 768
 
