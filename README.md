@@ -4,7 +4,7 @@
 - Please wait for modifications before using it.
 - The `Under Construction` tag will be removed once updates are completed.
 
-# --- Work in progress ----
+# --- Work in progress ---
 # dcase2026_task6_baseline
 [QD-DETR](https://github.com/wjun0830/QD-DETR)-based baseline for DCASE 2026 challenge task 6.
 
@@ -15,9 +15,9 @@ These features are then forwarded into the cross-attention transformers, followe
 Finally, the model outputs multiple candidate moments with start/end timestamps and confidence scores.
 
 ## Getting started
-0. Clone this repository
+0. ✔️ Clone this repository
 ```
-git clone https://github.com/awkrail/dcase2026_task6_baseline.git
+git clone https://github.com/Snehitc/AMR-encoder-exploration.git
 ```
 1. Install Pytorch & dependency libraries
 Install pytorch, torchvision, and torchaudio based on your GPU environments. Note that the inference API is available for CPU environments. We tested the codes on Python 3.9 and CUDA 11.8:
@@ -47,9 +47,23 @@ These feature files are also available in HuggingFace.
 
 ## Training and evaluation
 0. Train a model
+> Single model
 ```
-python src/train.py --config config.yml  
+python src/train.py --config config_pretraining.yml --feature_model_audio M2D --feature_model_text M2D
 ```
+
+```
+python src/train.py --config config.yml --feature_model_audio M2D --feature_model_text M2D --resume /work/u5049807/dcase2026_task6_baseline/results_pretraining/A-M2D_T-M2D/best_checkpoint.pth
+```
+> Or Ensemble
+```
+python src/train.py --config config_pretraining.yml --feature_model_audio M2D LAION --feature_model_text M2D LAION
+```
+
+```
+python src/train.py --config config.yml --feature_model_audio M2D LAION --feature_model_text M2D LAION --resume /work/u5049807/dcase2026_task6_baseline/results_pretraining/A-M2D_LAION_T-M2D_LAION/best_checkpoint.pth
+```
+
 - `config.yml` is for CASTELLA. If you train models on Clotho-Moment, use `config-pretraining.yml`
 - If you use pre-trained model weights, use `--resume ./**/{checkpoint}.pth`
 
@@ -57,7 +71,7 @@ python src/train.py --config config.yml
 1. Evaluation
 Reproduce the evaluation on the `val` set.
 ```
-python src/evaluate.py --config config.yml --model_path results/best_checkpoint.pth
+python src/evaluate.py --config config.yml --model_path results/best_checkpoint.pth --feature_model_audio M2D --feature_model_text M2D
 ```
 The result is:
 ```
@@ -81,7 +95,7 @@ full: [0, 1500], 352/352=100.00 examples.
 
 Reproduce the evaluation on the `test` set:
 ```
-python src/evaluate.py --config config.yml --split test --model_path results/best_checkpoint.pth
+python src/evaluate.py --config config.yml --split test --model_path results/best_checkpoint.pth --feature_model_audio M2D --feature_model_text M2D
 ```
 The result is:
 ```
@@ -108,7 +122,7 @@ full: [0, 1500], 1347/1347=100.00 examples.
 
 Download extracted features from [Zenodo](https://zenodo.org/records/20450254) or  [HuggingFace](https://huggingface.co/datasets/lighthouse-emnlp2024/AudioMomentRetrievalFromLongAudio_DCASE2026EvaluationData), and move them to `./features/clap` and `./features/clap_text`, and then run the following command to create a submission file. 
 ```
-python src/create_submission.py --config config.yml --model_path results/best_checkpoint.pth
+python src/create_submission.py --config config.yml --model_path results/best_checkpoint.pth --feature_model_audio M2D --feature_model_text M2D
 ```
 You can get `submission.jsonl` file under `results` directory. For details, please read [this README.md](src/standalone_eval/README.md)
 
