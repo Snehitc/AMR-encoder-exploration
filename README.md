@@ -71,7 +71,7 @@ python src/train.py --config config.yml --feature_model_audio M2D LAION --featur
 1. Evaluation
 Reproduce the evaluation on the `val` set.
 ```
-python src/evaluate.py --config config.yml --model_path results/best_checkpoint.pth --feature_model_audio M2D --feature_model_text M2D
+python src/evaluate.py --config config.yml --model_path /work/u5049807/dcase2026_task6_baseline/results/A-M2D_T-M2D/best_checkpoint.pth --feature_model_audio M2D --feature_model_text M2D
 ```
 The result is:
 ```
@@ -95,7 +95,7 @@ full: [0, 1500], 352/352=100.00 examples.
 
 Reproduce the evaluation on the `test` set:
 ```
-python src/evaluate.py --config config.yml --split test --model_path results/best_checkpoint.pth --feature_model_audio M2D --feature_model_text M2D
+python src/evaluate.py --config config.yml --split test --model_path /work/u5049807/dcase2026_task6_baseline/results/A-M2D_T-M2D/best_checkpoint.pth --feature_model_audio M2D --feature_model_text M2D
 ```
 The result is:
 ```
