@@ -57,23 +57,10 @@ max_q_l: 32
 max_a_l: 300
 
 # feature-specific config 
-MSCLAP:
-  ctx_mode: audio_tef
-  a_feat_dir: /work/u5049807/dcase2026_task6_baseline/features/castella/MSCLAP/clap
-  t_feat_dir: /work/u5049807/dcase2026_task6_baseline/features/castella/MSCLAP/clap_text
-  a_sub_feat_dir: /work/u5049807/dcase2026_task6_baseline/private/feature/castella/MSCLAP/clap
-  t_sub_feat_dir: /work/u5049807/dcase2026_task6_baseline/private/feature/castella/MSCLAP/clap_text
-  a_feat_type: clap
-  t_feat_type: clap
-  a_feat_dim: 768
-  t_feat_dim: 768
-
 M2D:
   ctx_mode: audio_tef
   a_feat_dir: /work/u5049807/dcase2026_task6_baseline/features/castella/M2D/M2D_audio
   t_feat_dir: /work/u5049807/dcase2026_task6_baseline/features/castella/M2D/M2D_text
-  a_sub_feat_dir: /work/u5049807/dcase2026_task6_baseline/private/feature/castella/M2D/M2D_audio
-  t_sub_feat_dir: /work/u5049807/dcase2026_task6_baseline/private/feature/castella/M2D/M2D_text
   a_feat_type: M2D
   t_feat_type: M2D
   a_feat_dim: 768
@@ -83,8 +70,6 @@ LAION:
   ctx_mode: audio_tef
   a_feat_dir: /work/u5049807/dcase2026_task6_baseline/features/castella/LAION/LAION_audio
   t_feat_dir: /work/u5049807/dcase2026_task6_baseline/features/castella/LAION/LAION_text
-  a_sub_feat_dir: /work/u5049807/dcase2026_task6_baseline/private/feature/castella/LAION/LAION_audio
-  t_sub_feat_dir: /work/u5049807/dcase2026_task6_baseline/private/feature/castella/LAION/LAION_text
   a_feat_type: LAION
   t_feat_type: LAION
   a_feat_dim: 512
@@ -94,8 +79,6 @@ OpenFLAM:
   ctx_mode: audio_tef
   a_feat_dir: /work/u5049807/dcase2026_task6_baseline/features/castella/OpenFLAM/OpenFLAM_audio
   t_feat_dir: /work/u5049807/dcase2026_task6_baseline/features/castella/OpenFLAM/OpenFLAM_text
-  a_sub_feat_dir: /work/u5049807/dcase2026_task6_baseline/private/feature/castella/OpenFLAM/OpenFLAM_audio
-  t_sub_feat_dir: /work/u5049807/dcase2026_task6_baseline/private/feature/castella/OpenFLAM/OpenFLAM_text
   a_feat_type: OpenFLAM
   t_feat_type: OpenFLAM
   a_feat_dim: 512
