@@ -171,7 +171,7 @@ if __name__ == '__main__':
 
   
     args = parser.parse_args()
-    option_manager = BaseOptions(args.config)
+    option_manager = BaseOptions(args)
     option_manager.parse()
     opt = option_manager.option
     opt.model_path = args.model_path
