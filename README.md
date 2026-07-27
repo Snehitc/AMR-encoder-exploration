@@ -91,22 +91,24 @@ python src/evaluate.py --config config.yml \
 ```
 The result is:
 ```
-2026-03-30 01:14:08.441:INFO:__main__ - Setup config, data and model...
-2026-03-30 01:14:08.442:INFO:__main__ - setup model/optimizer/scheduler
-2026-03-30 01:14:08.885:INFO:__main__ - CUDA enabled.
-2026-03-30 01:14:09.264:INFO:__main__ - Model checkpoint: results/best_checkpoint.pth
-2026-03-30 01:14:09.264:INFO:__main__ - Starting inference...
-2026-03-30 01:14:09.264:INFO:__main__ - Generate submissions
-compute st ed scores: 100%|███████████████████████████████████████████████████| 4/4 [00:01<00:00,  2.93it/s]
-convert to multiples of clip_length=1: 100%|███████████████████████████| 352/352 [00:00<00:00, 28908.68it/s]
-2026-03-30 01:14:10.652:INFO:__main__ - Saving/Evaluating before nms results
+2026-07-27 20:58:44.539:INFO:__main__ - Setup config, data and model...
+['M2D']
+2026-07-27 20:58:44.540:INFO:__main__ - setup model/optimizer/scheduler
+2026-07-27 20:58:44.773:INFO:__main__ - CUDA enabled.
+2026-07-27 20:58:46.002:INFO:__main__ - Model checkpoint: results/A-M2D_T-M2D/best_checkpoint.pth
+2026-07-27 20:58:46.002:INFO:__main__ - Starting inference...
+2026-07-27 20:58:46.002:INFO:__main__ - Generate submissions
+compute st ed scores: 100%|█████████████████████████████████████████| 2/2 [00:01<00:00,  1.39it/s]
+convert to multiples of clip_length=1: 100%|█████████████████| 352/352 [00:00<00:00, 16674.89it/s]
+2026-07-27 20:58:47.461:INFO:__main__ - Saving/Evaluating before nms results
 full: [0, 1500], 352/352=100.00 examples.
-[eval_moment_retrieval] [full] 0.12 seconds
-2026-03-30 01:14:10.795:INFO:__main__ - metrics_no_nms OrderedDict([   ('MR-full-R1@0.5', 27.56),
-                ('MR-full-R1@0.7', 16.19),
-                ('MR-full-mAP', 11.44),
-                ('MR-full-mAP@0.5', 24.02),
-                ('MR-full-mAP@0.75', 10.26)])
+[eval_moment_retrieval] [full] 0.18 seconds
+2026-07-27 20:58:47.658:INFO:__main__ - metrics_no_nms OrderedDict([   ('MR-full-R1@0.5', 53.69),
+                ('MR-full-R1@0.7', 36.65),
+                ('MR-full-mAP', 26.63),
+                ('MR-full-mAP@0.5', 46.51),
+                ('MR-full-mAP@0.75', 25.46)])
+
 ```
 
 Reproduce the evaluation on the `test` set:
@@ -117,22 +119,24 @@ python src/evaluate.py --config config.yml --split test \
 ```
 The result is:
 ```
-2026-03-30 01:14:48.156:INFO:__main__ - Setup config, data and model...
-2026-03-30 01:14:48.160:INFO:__main__ - setup model/optimizer/scheduler
-2026-03-30 01:14:48.599:INFO:__main__ - CUDA enabled.
-2026-03-30 01:14:48.986:INFO:__main__ - Model checkpoint: results/best_checkpoint.pth
-2026-03-30 01:14:48.986:INFO:__main__ - Starting inference...
-2026-03-30 01:14:48.986:INFO:__main__ - Generate submissions
-compute st ed scores: 100%|█████████████████████████████████████████████████| 14/14 [00:02<00:00,  5.44it/s]
-convert to multiples of clip_length=1: 100%|█████████████████████████| 1347/1347 [00:00<00:00, 28259.52it/s]
-2026-03-30 01:14:51.617:INFO:__main__ - Saving/Evaluating before nms results
+2026-07-27 20:56:42.602:INFO:__main__ - Setup config, data and model...
+['M2D']
+2026-07-27 20:56:42.607:INFO:__main__ - setup model/optimizer/scheduler
+2026-07-27 20:56:42.839:INFO:__main__ - CUDA enabled.
+2026-07-27 20:56:44.301:INFO:__main__ - Model checkpoint: results/A-M2D_T-M2D/best_checkpoint.pth
+2026-07-27 20:56:44.301:INFO:__main__ - Starting inference...
+2026-07-27 20:56:44.301:INFO:__main__ - Generate submissions
+compute st ed scores: 100%|████████████████████████████████████████████████| 6/6 [00:04<00:00,  1.22it/s]
+convert to multiples of clip_length=1: 100%|██████████████████████| 1347/1347 [00:00<00:00, 19081.57it/s]
+2026-07-27 20:56:49.297:INFO:__main__ - Saving/Evaluating before nms results
 full: [0, 1500], 1347/1347=100.00 examples.
-[eval_moment_retrieval] [full] 0.24 seconds
-2026-03-30 01:14:51.886:INFO:__main__ - metrics_no_nms OrderedDict([   ('MR-full-R1@0.5', 23.16),
-                ('MR-full-R1@0.7', 10.32),
-                ('MR-full-mAP', 9.11),
-                ('MR-full-mAP@0.5', 20.34),
-                ('MR-full-mAP@0.75', 6.96)])
+[eval_moment_retrieval] [full] 0.48 seconds
+2026-07-27 20:56:49.802:INFO:__main__ - metrics_no_nms OrderedDict([   ('MR-full-R1@0.5', 43.88),
+                ('MR-full-R1@0.7', 25.39),
+                ('MR-full-mAP', 19.4),
+                ('MR-full-mAP@0.5', 36.89),
+                ('MR-full-mAP@0.75', 17.5)])
+
 ```
 
 ## Preparation for submission.jsonl
