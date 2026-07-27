@@ -5,78 +5,62 @@
 - The `Under Construction` tag will be removed once updates are completed.
 
 # --- Work in progress ---
-# dcase2026_task6_baseline
-[QD-DETR](https://github.com/wjun0830/QD-DETR)-based baseline for DCASE 2026 challenge task 6.
 
-## Model architecture
-The model is based on QD-DETR, a Transformer-based encoder-decoder architecture. An overview architecture is described in Figure 2 in the [paper](https://arxiv.org/pdf/2303.13874).
-Given an audio and text pair, [CLAP](https://github.com/microsoft/CLAP) encodes them into audio and text features, respectively.
-These features are then forwarded into the cross-attention transformers, followed by the Transformer decoder.
-Finally, the model outputs multiple candidate moments with start/end timestamps and confidence scores.
+# Pipeline
+[Figure of Pipeline]
 
-## Getting started
-0. ✔️ Clone this repository
+# Setup
+## 1. Clone this repository
 ```
 git clone --depth 1 https://github.com/Snehitc/AMR-encoder-exploration.git && rm -rf AMR-encoder-exploration/.git
 cd AMR-encoder-exploration
 ```
-
+## 2. Create Environment
 ```
 conda create -n AMR python=3.12
 conda activate AMR
 ```
-1. Install Pytorch & dependency libraries
-Install pytorch, torchvision, and torchaudio based on your GPU environments. Note that the inference API is available for CPU environments. We tested the codes on Python 3.9 and CUDA 11.8:
+## 3. Install PyTorch (CUDA Version)
 ```
 pip install torch==2.6.0 --index-url https://download.pytorch.org/whl/cu124
 ```
+## 4. Install Requirements
 ```
 pip install -r requirements.txt
 ```
-2. Prepare feature files
-Download [CASTELLA dataset](https://zenodo.org/records/18358706) and [Clotho-Moment dataset](https://zenodo.org/records/17129257).
-```
-wget https://zenodo.org/records/18358706/files/clap.tar.gz
-wget https://zenodo.org/records/18358706/files/clap_text.tar.gz
-tar -zxvf clap.tar.gz
-tar -zxvf clap_text.tar.gz
-```
 
-```
-wget https://zenodo.org/api/records/17129257/files-archive
-cat clotho-moment_features.tar.part-* > clotho-moment_features.tar
-tar -xvf clotho-moment_features.tar
-```
-
-These feature files are also available in HuggingFace.
-- [CASTELLA dataset](https://huggingface.co/datasets/lighthouse-emnlp2024/CASTELLA_CLAP_features)
-- [Clotho-Moment dataset](https://huggingface.co/datasets/lighthouse-emnlp2024/Clotho-Moment_CLAP_features)
+# Dataset - _Extracted Features_
+| Dataset | Link |
+| :-: | :-: |
+| CASTELLA | [CASTELLA dataset](https://zenodo.org/records/20772071) |
+| Clotho-Moment | [Clotho-Moment dataset](https://zenodo.org/records/20770460) |
 
 
-## Training and evaluation
-0. Train a model
-> Single model
-```
-python src/train.py --config config_pretraining.yml \
---feature_model_audio M2D --feature_model_text M2D
-```
+# Usage
+## Training
+Non-Ensemble
+> ```
+> python src/train.py --config config_pretraining.yml \
+> --feature_model_audio M2D --feature_model_text M2D
+> ```
 
-```
-python src/train.py --config config.yml \
---feature_model_audio M2D --feature_model_text M2D \
---resume results_pretraining/A-M2D_T-M2D/best_checkpoint.pth
-```
-> Or Ensemble
-```
-python src/train.py --config config_pretraining.yml \
---feature_model_audio M2D LAION --feature_model_text M2D LAION
-```
+> ```
+> python src/train.py --config config.yml \
+> --feature_model_audio M2D --feature_model_text M2D \
+> --resume results_pretraining/A-M2D_T-M2D/best_checkpoint.pth
+> ```
 
-```
-python src/train.py --config config.yml \
---feature_model_audio M2D LAION --feature_model_text M2D LAION \
---resume results_pretraining/A-M2D_LAION_T-M2D_LAION/best_checkpoint.pth
-```
+Ensemble
+> ```
+> python src/train.py --config config_pretraining.yml \
+> --feature_model_audio M2D LAION --feature_model_text M2D LAION
+> ```
+
+> ```
+> python src/train.py --config config.yml \
+> --feature_model_audio M2D LAION --feature_model_text M2D LAION \
+> --resume results_pretraining/A-M2D_LAION_T-M2D_LAION/best_checkpoint.pth
+> ```
 
 - `config.yml` is for CASTELLA. If you train models on Clotho-Moment, use `config-pretraining.yml`
 - If you use pre-trained model weights, use `--resume ./**/{checkpoint}.pth`
