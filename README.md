@@ -4,7 +4,7 @@
 - Please wait for modifications before using it.
 - The `Under Construction` tag will be removed once updates are completed.
 
-<!---
+# --- Work in progress ----
 # dcase2026_task6_baseline
 [QD-DETR](https://github.com/wjun0830/QD-DETR)-based baseline for DCASE 2026 challenge task 6.
 
@@ -162,7 +162,7 @@ This code is based on [lighthouse](https://github.com/line/lighthouse).
 taichitary@gmail.com
 
 hokuto.munakata@lycorp.co.jp
---->
+# ---------------------------
 
 # Citation
 > S. Chunarkar, H. Krishnagiri, C. Lee, "Exploring Pretrained Audio-Text Encoders for Audio Moment Retrieval: DCASE 2026 Task 6," DCASE2026 Challenge, Tech. Rep., 2026.
