@@ -44,23 +44,23 @@ aux_loss: True
 
 model_ema: False
 ema_decay: 0.9
-results_dir: /work/u5049807/dcase2026_task6_baseline/results_pretraining
+results_dir: results_pretraining
 
 # clotho-moment-specific config
 dset_name: clotho-moment
 clip_length: 1
-train_path: /work/u5049807/dcase2026_task6_baseline/data/clotho_moment_train_release.jsonl
-val_path: /work/u5049807/dcase2026_task6_baseline/data/clotho_moment_val_release.jsonl
-test_path: /work/u5049807/dcase2026_task6_baseline/data/clotho_moment_test_release.jsonl
-submission_path: /work/u5049807/dcase2026_task6_baseline/private/dcase2026_private.jsonl
+train_path: clotho_moment_train_release.jsonl
+val_path: data/clotho_moment_val_release.jsonl
+test_path: data/clotho_moment_test_release.jsonl
+submission_path: data/dcase2026_private.jsonl
 max_q_l: 32
 max_a_l: 300
 
 # feature-specific config 
 M2D:
   ctx_mode: audio_tef
-  a_feat_dir: /work/u5049807/dcase2026_task6_baseline/features/clotho_moment/M2D/M2D_audio
-  t_feat_dir: /work/u5049807/dcase2026_task6_baseline/features/clotho_moment/M2D/M2D_text
+  a_feat_dir: features/clotho_moment/M2D/M2D_audio
+  t_feat_dir: features/clotho_moment/M2D/M2D_text
   a_feat_type: M2D
   t_feat_type: M2D
   a_feat_dim: 768
@@ -68,43 +68,28 @@ M2D:
 
 LAION:
   ctx_mode: audio_tef
-  a_feat_dir: /work/u5049807/dcase2026_task6_baseline/features/clotho_moment/LAION/LAION_audio
-  t_feat_dir: /work/u5049807/dcase2026_task6_baseline/features/clotho_moment/LAION/LAION_text
+  a_feat_dir: features/clotho_moment/LAION/LAION_audio
+  t_feat_dir: features/clotho_moment/LAION/LAION_text
   a_feat_type: LAION
   t_feat_type: LAION
   a_feat_dim: 512
   t_feat_dim: 512
 
-OpenFLAM:
-  ctx_mode: audio_tef
-  a_feat_dir: /work/u5049807/dcase2026_task6_baseline/features/clotho_moment/OpenFLAM/OpenFLAM_audio
-  t_feat_dir: /work/u5049807/dcase2026_task6_baseline/features/clotho_moment/OpenFLAM/OpenFLAM_text
-  a_feat_type: OpenFLAM
-  t_feat_type: OpenFLAM
-  a_feat_dim: 512
-  t_feat_dim: 512
-
-WavLM:
-  ctx_mode: audio_tef
-  a_feat_dir: /work/u5049807/dcase2026_task6_baseline/features/clotho_moment/WavLM/WavLM_audio
-  a_feat_type: WavLM
-  a_feat_dim: 768
-
 BEATs:
   ctx_mode: audio_tef
-  a_feat_dir: /work/u5049807/dcase2026_task6_baseline/features/clotho_moment/BEATs/BEATs_audio
+  a_feat_dir: features/clotho_moment/BEATs/BEATs_audio
   a_feat_type: BEATs
   a_feat_dim: 768
 
 RoBERTa:
   ctx_mode: audio_tef
-  t_feat_dir: /work/u5049807/dcase2026_task6_baseline/features/clotho_moment/RoBERTa/RoBERTa_text
+  t_feat_dir: features/clotho_moment/RoBERTa/RoBERTa_text
   t_feat_type: RoBERTa
   t_feat_dim: 768
 
 T5:
   ctx_mode: audio_tef
-  t_feat_dir: /work/u5049807/dcase2026_task6_baseline/features/clotho_moment/T5/T5_text
+  t_feat_dir: features/clotho_moment/T5/T5_text
   t_feat_type: T5
   t_feat_dim: 768
 
