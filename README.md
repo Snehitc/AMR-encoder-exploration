@@ -121,10 +121,10 @@ Result (e.g. M2D):
 >                 ('MR-full-mAP@0.75', 17.5)])
 > ```
 
-## Preparation for submission.jsonl
-**Evaluation data for the submission, such as extracted features and `./data/dcase_evaluation.jsonl` will be publicly available on June 1.**
+# Preparation for submission.jsonl
+Extracted Features of evaluation data are not included in the Dataset Download link; users need to extract the data for the respective dataset by themselves for this part.
+> This requires contacting the challenge organiser to get the Evaluation data (audio files).
 
-Download extracted features from [Zenodo](https://zenodo.org/records/20450254) or  [HuggingFace](https://huggingface.co/datasets/lighthouse-emnlp2024/AudioMomentRetrievalFromLongAudio_DCASE2026EvaluationData), and move them to `./features/clap` and `./features/clap_text`, and then run the following command to create a submission file. 
 ```
 python src/create_submission.py --config config.yml \
 --model_path results/A-M2D_T-M2D/best_checkpoint.pth \
@@ -133,13 +133,6 @@ python src/create_submission.py --config config.yml \
 You can get `submission.jsonl` file under `results` directory. For details, please read [this README.md](src/standalone_eval/README.md)
 
 
-
-
-## Others
-This code is based on [dcase2026_task6_baseline](https://github.com/awkrail/dcase2026_task6_baseline).
-
-
-# ---------------------------
 
 # Citation
 > S. Chunarkar, H. Krishnagiri, C. Lee, "Exploring Pretrained Audio-Text Encoders for Audio Moment Retrieval: DCASE 2026 Task 6," DCASE2026 Challenge, Tech. Rep., 2026.
@@ -153,3 +146,6 @@ This code is based on [dcase2026_task6_baseline](https://github.com/awkrail/dcas
     month = "June",
 }
 ```
+
+## Reference
+This code is based on [dcase2026_task6_baseline](https://github.com/awkrail/dcase2026_task6_baseline).
