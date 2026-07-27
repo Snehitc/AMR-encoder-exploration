@@ -79,7 +79,9 @@ python src/train.py --config config.yml --feature_model_audio M2D LAION --featur
 1. Evaluation
 Reproduce the evaluation on the `val` set.
 ```
-python src/evaluate.py --config config.yml --model_path results/A-M2D_T-M2D/best_checkpoint.pth --feature_model_audio M2D --feature_model_text M2D
+python src/evaluate.py --config config.yml \
+--model_path results/A-M2D_T-M2D/best_checkpoint.pth \
+--feature_model_audio M2D --feature_model_text M2D
 ```
 The result is:
 ```
@@ -103,7 +105,9 @@ full: [0, 1500], 352/352=100.00 examples.
 
 Reproduce the evaluation on the `test` set:
 ```
-python src/evaluate.py --config config.yml --split test --model_path results/A-M2D_T-M2D/best_checkpoint.pth --feature_model_audio M2D --feature_model_text M2D
+python src/evaluate.py --config config.yml --split test \
+--model_path results/A-M2D_T-M2D/best_checkpoint.pth \
+--feature_model_audio M2D --feature_model_text M2D
 ```
 The result is:
 ```
@@ -130,7 +134,9 @@ full: [0, 1500], 1347/1347=100.00 examples.
 
 Download extracted features from [Zenodo](https://zenodo.org/records/20450254) or  [HuggingFace](https://huggingface.co/datasets/lighthouse-emnlp2024/AudioMomentRetrievalFromLongAudio_DCASE2026EvaluationData), and move them to `./features/clap` and `./features/clap_text`, and then run the following command to create a submission file. 
 ```
-python src/create_submission.py --config config.yml --model_path results/best_checkpoint.pth --feature_model_audio M2D --feature_model_text M2D
+python src/create_submission.py --config config.yml \
+--model_path results/best_checkpoint.pth \
+--feature_model_audio M2D --feature_model_text M2D
 ```
 You can get `submission.jsonl` file under `results` directory. For details, please read [this README.md](src/standalone_eval/README.md)
 
