@@ -49,6 +49,13 @@ def compute_mr_results(model, eval_loader, opt, criterion=None):
         prob = F.softmax(outputs["pred_logits"], -1)  # (batch_size, #queries, #classes=2)
         scores = prob[..., 0].cpu()  # * (batch_size, #queries)  foreground label is 0, we directly take it
 
+        # [Modified by Hamza]: IoU based score ---
+        if "pred_iou" in outputs:
+            pred_iou = outputs["pred_iou"].cpu().squeeze(-1)
+            alpha = 1.5  # Soft calibration multiplier tuning parameter
+            scores = scores * (pred_iou ** alpha)
+        # ---------------------------
+      
         for idx, (meta, spans, score) in enumerate(zip(query_meta, pred_spans, scores)):            
             spans = span_cxw_to_xx(spans) * meta["duration"]
             cur_ranked_preds = torch.cat([spans, score[:, None]], dim=1).tolist()
@@ -99,7 +106,7 @@ def eval_epoch(model, eval_dataset, opt, save_submission_filename, criterion):
 
     submission = get_eval_res(model, eval_loader, opt, criterion)        
     logger.info("Saving/Evaluating before nms results")
-    submission_path = os.path.join(opt.results_dir, save_submission_filename)
+    submission_path = os.path.join(opt.results_dir, opt.feat_model_combination, save_submission_filename)
     save_jsonl(submission, submission_path)
 
 
@@ -125,11 +132,11 @@ def start_inference(opt):
     # dataset & data loader
     dataset_config = EasyDict(
         data_path=opt.submission_path,
-        ctx_mode=opt.ctx_mode,
-        a_feat_dir=opt.a_sub_feat_dir,
-        q_feat_dir=opt.t_sub_feat_dir,
+        ctx_mode=opt[opt.feature_model_audio[0]].ctx_mode,
+        a_feat_dir=[opt[_feature_model_audio].a_feat_dir for _feature_model_audio in opt.feature_model_audio],
+        q_feat_dir=[opt[_feature_model_text].t_feat_dir for _feature_model_text in opt.feature_model_text],
         q_feat_type="last_hidden_state",
-        a_feat_type=opt.a_feat_type,
+        a_feat_type=opt[opt.feature_model_audio[0]].a_feat_type,
         max_q_l=opt.max_q_l,
         max_a_l=opt.max_a_l,
         clip_len=opt.clip_length,
@@ -157,9 +164,16 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--config', '-c', type=str, required=True, help='config path')
     parser.add_argument('--model_path', '-m', type=str, required=True, help='model checkpoint path')
+
+    # [Modified by Snehit]: New inputs - 1. feature_model_audio, 2. feature_model_text
+    parser.add_argument('--feature_model_audio', nargs='+', type=str, required=True, help='[MSCLAP, M2D, LAION, OpenFLAM, WavLM, BEATs]')
+    parser.add_argument('--feature_model_text', nargs='+', type=str, required=True, help='[MSCLAP, M2D, LAION, OpenFLAM, RoBERTa, T5]')
+
+  
     args = parser.parse_args()
     option_manager = BaseOptions(args.config)
     option_manager.parse()
     opt = option_manager.option
     opt.model_path = args.model_path
+    opt.eval_split_name = "private"
     start_inference(opt)
