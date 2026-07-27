@@ -6,6 +6,11 @@
 
 # --- Work in progress ---
 
+[![dcase2026_task6_baseline](https://img.shields.io/badge/GitHub-Baseline-black?logo=GitHub)](https://github.com/awkrail/dcase2026_task6_baseline)
+[![Paper](https://img.shields.io/badge/Paper-DCASE-green)](https://dcase.community/documents/challenge2026/technical_reports/DCASE2026_Chunarkar_82_t6.pdf)
+[![ClothoMoment](https://img.shields.io/badge/Features-Clotho--Moment-blue?logo=zenodo)](https://zenodo.org/records/20770460)
+[![CASTELLA](https://img.shields.io/badge/Features-CASTELLA-blue?logo=zenodo)](https://zenodo.org/records/20772071)
+
 # Pipeline
 [Figure of Pipeline]
 
