@@ -60,12 +60,8 @@ class QDDETR(nn.Module):
         span_pred_dim = 2
         self.span_embed = MLP(hidden_dim, hidden_dim, span_pred_dim, 3)
         self.class_embed = nn.Linear(hidden_dim, 2)  # 0: background, 1: foreground
-
-        # --- Hamza: Start: NEW IOU HEAD ---
-        # A lightweight MLP to predict the quality of the boundary
-        self.iou_embed = MLP(hidden_dim, hidden_dim, 1, 2)
-        # --- Hamza: End ---------------
-
+        self.iou_embed = MLP(hidden_dim, hidden_dim, 1, 2)        # [Modified by Hamza]: NEW IoU HEAD
+        
 
         self.use_txt_pos = use_txt_pos
         self.n_input_proj = n_input_proj
@@ -110,6 +106,7 @@ class QDDETR(nn.Module):
                - "aux_outputs": Optional, only returned when auxilary losses are activated. It is a list of
                                 dictionnaries containing the two above keys for each decoder layer.
         """
+        # [Modified by Snehit & Hamza]: 15% Mask extracted features
         if self.training:
             Shape_without_last2 = [s if i!= len(src_aud.shape)-1 else s-2 for i, s in enumerate(src_aud.shape)]
             Shape_only_last2 = [s if i!= len(src_aud.shape)-1 else 2 for i, s in enumerate(src_aud.shape)]
@@ -119,8 +116,6 @@ class QDDETR(nn.Module):
             drop_mask = torch.cat([drop_mask, no_mask_last2], dim=2)
 
             src_aud = src_aud * drop_mask
-            #drop_mask = (torch.rand(src_aud.shape[:2], device=src_aud.device) > 0.15).float()
-            #src_aud = src_aud * drop_mask.unsqueeze(-1)
 
         src_aud = self.input_aud_proj(src_aud)
         src_txt = self.input_txt_proj(src_txt)
@@ -128,10 +123,7 @@ class QDDETR(nn.Module):
         mask = torch.cat([src_aud_mask, src_txt_mask], dim=1).bool()  # (bsz, L_aud+L_txt)
         pos_aud = self.position_embed(src_aud, src_aud_mask)  # (bsz, L_aud, d)
         pos_txt = self.txt_position_embed(src_txt) if self.use_txt_pos else torch.zeros_like(src_txt)  # (bsz, L_txt, d)
-        # pos_txt = torch.zeros_like(src_txt)
-        # pad zeros for txt positions
         pos = torch.cat([pos_aud, pos_txt], dim=1)
-        # (#layers, bsz, #queries, d), (bsz, L_aud+L_txt, d)
 
         # for global token
         mask_ = torch.tensor([[True]]).to(mask.device).repeat(mask.shape[0], 1)
@@ -151,15 +143,10 @@ class QDDETR(nn.Module):
         if self.span_loss_type == "l1":
             outputs_coord = outputs_coord.sigmoid()
 
-        # --- Hamza: Start NEW IOU HEAD PREDICTION ---
-        outputs_iou = self.iou_embed(hs).sigmoid()
-        # --- Hamza: End ----------------------------
-
-        # --- Hamza: Start ----------------------------
-        out = {'pred_logits': outputs_class[-1], 'pred_spans': outputs_coord[-1], 'pred_iou': outputs_iou[-1], 'hs': hs[-1], 'aud_mem': memory[:, :src_aud.shape[1]]}
-        # --- Hamza: End ----------------------------
-        #out = {'pred_logits': outputs_class[-1], 'pred_spans': outputs_coord[-1]}
-
+        outputs_iou = self.iou_embed(hs).sigmoid()        # [Modified by Hamza]: Prediction by IoU Head
+        
+        out = {'pred_logits': outputs_class[-1], 'pred_spans': outputs_coord[-1], 'pred_iou': outputs_iou[-1], 'hs': hs[-1], 'aud_mem': memory[:, :src_aud.shape[1]]} # [Modified by Hamza]: Added IoU Prediction
+        
         txt_mem = memory[:, src_aud.shape[1]:]  # (bsz, L_txt, d)
         aud_mem = memory[:, :src_aud.shape[1]]  # (bsz, L_aud, d)
             
