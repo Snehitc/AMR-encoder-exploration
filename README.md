@@ -18,11 +18,18 @@ Finally, the model outputs multiple candidate moments with start/end timestamps 
 0. ✔️ Clone this repository
 ```
 git clone https://github.com/Snehitc/AMR-encoder-exploration.git
+cd AMR-encoder-exploration
+```
+
+```
+conda create -n AMR python=3.12
 ```
 1. Install Pytorch & dependency libraries
 Install pytorch, torchvision, and torchaudio based on your GPU environments. Note that the inference API is available for CPU environments. We tested the codes on Python 3.9 and CUDA 11.8:
 ```
-pip install torch==2.1.0 torchvision==0.16.0 torchaudio==2.1.0 --index-url https://download.pytorch.org/whl/cu118
+pip install torch==2.6.0 torchvision==0.21.0 torchaudio==2.6.0 --index-url https://download.pytorch.org/whl/cu124
+```
+```
 pip install -r requirements.txt
 ```
 2. Prepare feature files
