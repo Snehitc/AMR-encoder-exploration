@@ -75,13 +75,11 @@ LAION:
   a_feat_dim: 512
   t_feat_dim: 512
 
-
 BEATs:
   ctx_mode: audio_tef
   a_feat_dir: features/castella/BEATs/BEATs_audio
   a_feat_type: BEATs
   a_feat_dim: 768
-
 
 T5:
   ctx_mode: audio_tef
