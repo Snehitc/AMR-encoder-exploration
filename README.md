@@ -17,7 +17,7 @@ Finally, the model outputs multiple candidate moments with start/end timestamps 
 ## Getting started
 0. ✔️ Clone this repository
 ```
-git clone https://github.com/Snehitc/AMR-encoder-exploration.git
+git clone --depth 1 https://github.com/Snehitc/AMR-encoder-exploration.git && rm -rf AMR-encoder-exploration/.git
 cd AMR-encoder-exploration
 ```
 
