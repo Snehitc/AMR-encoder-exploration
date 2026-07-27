@@ -23,6 +23,7 @@ cd AMR-encoder-exploration
 
 ```
 conda create -n AMR python=3.12
+conda activate AMR
 ```
 1. Install Pytorch & dependency libraries
 Install pytorch, torchvision, and torchaudio based on your GPU environments. Note that the inference API is available for CPU environments. We tested the codes on Python 3.9 and CUDA 11.8:
