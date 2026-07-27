@@ -231,12 +231,10 @@ class SetCriterion(nn.Module):
         tgt_spans = torch.cat([t['spans'][i] for t, (_, i) in zip(targets, indices)], dim=0)  # (#spans, 2)
         if self.span_loss_type == "l1":
             loss_span = F.l1_loss(src_spans, tgt_spans, reduction='none')
-            # --- Hmaza: Start ---
-            loss_span = loss_span.mean()
-            # --- Hmaza: End ---
+            loss_span = loss_span.mean()        # [Modified by Hamza]
             loss_giou = 1 - torch.diag(generalized_temporal_iou(span_cxw_to_xx(src_spans), span_cxw_to_xx(tgt_spans)))
 
-            # --- Hmaza: Start NEW IOU CALIBRATION LOSS ---
+            # [Modified by Hmaza]: Adding New IoU Loss
             if 'pred_iou' in outputs:
                 src_ious = outputs['pred_iou'][idx].squeeze(-1)
                 
@@ -251,23 +249,19 @@ class SetCriterion(nn.Module):
                 loss_iou = F.mse_loss(src_ious, exact_iou.detach())
             else:
                 loss_iou = torch.tensor(0.0, device=loss_span.device)
-            # Hamza: End --------------------------------
+            # -----------------------------------------
 
         else:  # ce
             n_spans = src_spans.shape[0]
             src_spans = src_spans.view(n_spans, 2, self.max_v_l).transpose(1, 2)
             loss_span = F.cross_entropy(src_spans, tgt_spans, reduction='none')
             loss_giou = loss_span.new_zeros([1])
-            # --- Hmaza: Start ---
-            loss_iou = loss_span.new_zeros([1])
-            # --- Hmaza: End ---
+            loss_iou = loss_span.new_zeros([1])        # [Modified by Hamza]
 
         losses = {}
         losses['loss_span'] = loss_span.mean()
         losses['loss_giou'] = loss_giou.mean()
-        # --- Hmaza: Start ---
-        losses['loss_iou'] = loss_iou
-        # --- Hmaza: End ---
+        losses['loss_iou'] = loss_iou        # [Added by Hamza]
         return losses
 
     def loss_labels(self, outputs, targets, indices, log=True):
@@ -490,7 +484,7 @@ def build_model(args):
         "loss_giou": args.giou_loss_coef,
         "loss_label": args.label_loss_coef,
         "loss_saliency": args.lw_saliency,
-        "loss_iou": 2.0  # Weight added for the new IoU calibration loss
+        "loss_iou": 2.0  # [Added by Hamza]
     }
 
     if args.aux_loss:
