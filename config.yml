@@ -44,7 +44,7 @@ aux_loss: True
 
 model_ema: False
 ema_decay: 0.9
-results_dir: /work/u5049807/dcase2026_task6_baseline/results_CASTELLAonly
+results_dir: /work/u5049807/dcase2026_task6_baseline/results
 
 # castella-specific config
 dset_name: castella
