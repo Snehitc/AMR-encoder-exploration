@@ -57,19 +57,25 @@ These feature files are also available in HuggingFace.
 0. Train a model
 > Single model
 ```
-python src/train.py --config config_pretraining.yml --feature_model_audio M2D --feature_model_text M2D
+python src/train.py --config config_pretraining.yml \
+--feature_model_audio M2D --feature_model_text M2D
 ```
 
 ```
-python src/train.py --config config.yml --feature_model_audio M2D --feature_model_text M2D --resume results_pretraining/A-M2D_T-M2D/best_checkpoint.pth
+python src/train.py --config config.yml \
+--feature_model_audio M2D --feature_model_text M2D \
+--resume results_pretraining/A-M2D_T-M2D/best_checkpoint.pth
 ```
 > Or Ensemble
 ```
-python src/train.py --config config_pretraining.yml --feature_model_audio M2D LAION --feature_model_text M2D LAION
+python src/train.py --config config_pretraining.yml \
+--feature_model_audio M2D LAION --feature_model_text M2D LAION
 ```
 
 ```
-python src/train.py --config config.yml --feature_model_audio M2D LAION --feature_model_text M2D LAION --resume results_pretraining/A-M2D_LAION_T-M2D_LAION/best_checkpoint.pth
+python src/train.py --config config.yml \
+--feature_model_audio M2D LAION --feature_model_text M2D LAION \
+--resume results_pretraining/A-M2D_LAION_T-M2D_LAION/best_checkpoint.pth
 ```
 
 - `config.yml` is for CASTELLA. If you train models on Clotho-Moment, use `config-pretraining.yml`
