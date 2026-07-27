@@ -108,18 +108,18 @@ def compute_mr_results(model, eval_loader, opt, criterion=None):
         prob = F.softmax(outputs["pred_logits"], -1)  # (batch_size, #queries, #classes=2)
         scores = prob[..., 0].cpu()  # * (batch_size, #queries)  foreground label is 0, we directly take it
 
-        # Hamza: --- IOU RE-RANKING ---
+        # [Modified by Hamza]: New IoU head output
         if "pred_iou" in outputs:
             pred_iou = outputs["pred_iou"].cpu().squeeze(-1)
             alpha = 1.5  # Soft calibration multiplier tuning parameter
             scores = scores * (pred_iou ** alpha)
-        # ---------------------------
+        # ---------------------------------------
 
         for idx, (meta, spans, score) in enumerate(zip(query_meta, pred_spans, scores)):            
             spans = span_cxw_to_xx(spans) * meta["duration"]
             cur_ranked_preds = torch.cat([spans, score[:, None]], dim=1).tolist()
-            cur_ranked_preds = sorted(cur_ranked_preds, key=lambda x: x[2], reverse=True)     # Hamza: Commented
-            cur_ranked_preds = [[float(f"{e:.4f}") for e in row] for row in cur_ranked_preds] # Hamza: Commented
+            cur_ranked_preds = sorted(cur_ranked_preds, key=lambda x: x[2], reverse=True)
+            cur_ranked_preds = [[float(f"{e:.4f}") for e in row] for row in cur_ranked_preds]
 
             # Hamza: Fuse overlapping boxes to tighten the final temporal boundary
             #cur_ranked_preds = wbf_1d(cur_ranked_preds, iou_thr=0.55)
@@ -193,7 +193,7 @@ def setup_model(opt):
 
     return model, criterion, optimizer, lr_scheduler
 
-
+# [Modified by Snehit]: Modification - 1. EasyDict, 2. StartEndDataset, 3. setup_model (updated objects deal with ensemble features)
 def start_inference(opt):
     logger.info("Setup config, data and model...")
 
@@ -234,12 +234,13 @@ if __name__ == '__main__':
     parser.add_argument('--model_path', '-m', type=str, required=True, help='model checkpoint path')
     parser.add_argument('--split', '-s', type=str, default='val', choices=['val', 'test'], help='split name: val or test')
 
+    # [Modified by Snehit]: New inputs - 1. feature_model_audio, 2. feature_model_text
     parser.add_argument('--feature_model_audio', nargs='+', type=str, required=True, help='[MSCLAP, M2D, LAION, OpenFLAM, WavLM, BEATs]')
     parser.add_argument('--feature_model_text', nargs='+', type=str, required=True, help='[MSCLAP, M2D, LAION, OpenFLAM, RoBERTa, T5]')
     
     args = parser.parse_args()
     
-    option_manager = BaseOptions(args)
+    option_manager = BaseOptions(args)    # [Modified by Snehit]: BaseOptions
     option_manager.parse()
     opt = option_manager.option
 
