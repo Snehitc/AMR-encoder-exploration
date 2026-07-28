@@ -55,20 +55,43 @@
     <td align="center" valign="middle">17.50</td>
   </tr>
   <tr>
-    <td align="center" valign="middle">M2</td>
-    <td align="center" valign="middle">M2</td>
-    <td align="center" valign="middle">M2</td>
-    <td align="center" valign="middle">M2</td>
-    <td align="center" valign="middle">M2</td>
-    <td align="center" valign="middle">M2</td>
-    <td align="center" valign="middle">M2</td>
-    <td align="center" valign="middle">M2</td>
-    <td align="center" valign="middle">M2</td>
-    <td align="center" valign="middle">M2</td>
-    <td align="center" valign="middle">M2</td>
-    <td align="center" valign="middle">M2</td>
+    <td align="center" valign="middle">M3</td>
+    <td align="center" valign="middle">LAION-CLAP</td>
+    <td align="center" valign="middle">LAION-CLAP</td>
+    <td align="center" valign="middle">19.45</td>
+    <td align="center" valign="middle">7.42</td>
+    <td align="center" valign="middle">6.86</td>
+    <td align="center" valign="middle">16.72</td>
+    <td align="center" valign="middle">4.97</td>
+    <td align="center" valign="middle">38.08</td>
+    <td align="center" valign="middle">21.97</td>
+    <td align="center" valign="middle">16.38</td>
+    <td align="center" valign="middle">31.47</td>
+    <td align="center" valign="middle">15.09</td>
+  </tr>
+  <tr>
+    <td align="center" valign="middle">M4</td>
+    <td align="center" valign="middle">BEATs</td>
+    <td align="center" valign="middle">T5</td>
+    <td align="center" valign="middle">18.63</td>
+    <td align="center" valign="middle">8.02</td>
+    <td align="center" valign="middle">7.01</td>
+    <td align="center" valign="middle">15.98</td>
+    <td align="center" valign="middle">5.28</td>
+    <td align="center" valign="middle">34.45</td>
+    <td align="center" valign="middle">19.97</td>
+    <td align="center" valign="middle">15.64</td>
+    <td align="center" valign="middle">29.77</td>
+    <td align="center" valign="middle">14.18</td>
   </tr>
 </table>
+
+
+
+
+
+
+
 
 
 
