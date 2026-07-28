@@ -1,163 +1,3 @@
-<table>
-  <tr>
-    <th rowspan="3" align="center" valign="middle">ID</th>
-    <th rowspan="3" align="center" valign="middle">Audio Encoder</th>
-    <th rowspan="3" align="center" valign="middle">Text Encoder</th>
-    <th colspan="5" align="center" valign="middle">CASTELLA only </th>
-    <th colspan="5" align="center" valign="middle">Two Stage Training <br>PT: Clotho-Moment, FT: CASTELLA</th>
-  </tr>
-  <tr>
-    <td colspan="2" align="center" valign="middle">Recall1 ↑</td>
-    <td colspan="3" align="center" valign="middle">mAP ↑</td>
-    <td colspan="2" align="center" valign="middle">Recall1 ↑</td>
-    <td colspan="3" align="center" valign="middle">mAP ↑</td>
-  </tr>
-  <tr>
-    <td align="center" valign="middle">@0.5</td>
-    <td align="center" valign="middle">@0.7</td>
-    <td align="center" valign="middle">avg</td>
-    <td align="center" valign="middle">@0.5</td>
-    <td align="center" valign="middle">@0.75</td>
-    <td align="center" valign="middle">@0.5</td>
-    <td align="center" valign="middle">@0.7</td>
-    <td align="center" valign="middle">avg</td>
-    <td align="center" valign="middle">@0.5</td>
-    <td align="center" valign="middle">@0.75</td>
-  </tr>
-  <tr>
-    <td align="center" valign="middle">M1</td>
-    <td align="center" valign="middle">Baseline: MSCLAP</td>
-    <td align="center" valign="middle">Baseline: MSCLAP</td>
-    <td align="center" valign="middle">23.16</td>
-    <td align="center" valign="middle">10.32</td>
-    <td align="center" valign="middle">9.11</td>
-    <td align="center" valign="middle">20.34</td>
-    <td align="center" valign="middle">6.96</td>
-    <td align="center" valign="middle">25.61</td>
-    <td align="center" valign="middle">13.59</td>
-    <td align="center" valign="middle">12.06</td>
-    <td align="center" valign="middle">23.60</td>
-    <td align="center" valign="middle">10.72</td>
-  </tr>
-  <tr>
-    <td align="center" valign="middle">M2</td>
-    <td align="center" valign="middle">M2D-CLAP</td>
-    <td align="center" valign="middle">M2D-CLAP</td>
-    <td align="center" valign="middle">26.73</td>
-    <td align="center" valign="middle">12.32</td>
-    <td align="center" valign="middle">10.39</td>
-    <td align="center" valign="middle">22.98</td>
-    <td align="center" valign="middle">8.81</td>
-    <td align="center" valign="middle">43.88</td>
-    <td align="center" valign="middle">25.39</td>
-    <td align="center" valign="middle">19.40</td>
-    <td align="center" valign="middle">36.89</td>
-    <td align="center" valign="middle">17.50</td>
-  </tr>
-  <tr>
-    <td align="center" valign="middle">M3</td>
-    <td align="center" valign="middle">LAION-CLAP</td>
-    <td align="center" valign="middle">LAION-CLAP</td>
-    <td align="center" valign="middle">19.45</td>
-    <td align="center" valign="middle">7.42</td>
-    <td align="center" valign="middle">6.86</td>
-    <td align="center" valign="middle">16.72</td>
-    <td align="center" valign="middle">4.97</td>
-    <td align="center" valign="middle">38.08</td>
-    <td align="center" valign="middle">21.97</td>
-    <td align="center" valign="middle">16.38</td>
-    <td align="center" valign="middle">31.47</td>
-    <td align="center" valign="middle">15.09</td>
-  </tr>
-  <tr>
-    <td align="center" valign="middle">M4</td>
-    <td align="center" valign="middle">BEATs</td>
-    <td align="center" valign="middle">T5</td>
-    <td align="center" valign="middle">18.63</td>
-    <td align="center" valign="middle">8.02</td>
-    <td align="center" valign="middle">7.01</td>
-    <td align="center" valign="middle">15.98</td>
-    <td align="center" valign="middle">5.28</td>
-    <td align="center" valign="middle">34.45</td>
-    <td align="center" valign="middle">19.97</td>
-    <td align="center" valign="middle">15.64</td>
-    <td align="center" valign="middle">29.77</td>
-    <td align="center" valign="middle">14.18</td>
-  </tr>
-  <tr>
-    <td colspan="13" align="center" valign="middle">Ensemble</td>
-  </tr>
-  <tr>
-    <td align="center" valign="middle">M5</td>
-    <td align="center" valign="middle">(M2D, LAION)-CLAP</td>
-    <td align="center" valign="middle">(M2D, LAION)-CLAP</td>
-    <td align="center" valign="middle">30.44</td>
-    <td align="center" valign="middle">13.81</td>
-    <td align="center" valign="middle">11.47</td>
-    <td align="center" valign="middle">25.23</td>
-    <td align="center" valign="middle">9.20</td>
-    <td align="center" valign="middle">43.21</td>
-    <td align="center" valign="middle">26.43</td>
-    <td align="center" valign="middle">19.49</td>
-    <td align="center" valign="middle">35.94</td>
-    <td align="center" valign="middle">17.96</td>
-  </tr>
-  <tr>
-    <td align="center" valign="middle">M6</td>
-    <td align="center" valign="middle">M2D-CLAP, BEATs</td>
-    <td align="center" valign="middle">M2D-CLAP, T5</td>
-    <td align="center" valign="middle">28.14</td>
-    <td align="center" valign="middle">11.73</td>
-    <td align="center" valign="middle">10.80</td>
-    <td align="center" valign="middle">24.22</td>
-    <td align="center" valign="middle">8.71</td>
-    <td align="center" valign="middle">42.09</td>
-    <td align="center" valign="middle">25.17</td>
-    <td align="center" valign="middle">19.00</td>
-    <td align="center" valign="middle">36.47</td>
-    <td align="center" valign="middle">16.69</td>
-  <tr>
-    <td align="center" valign="middle">M7</td>
-    <td align="center" valign="middle">LAION-CLAP, BEATs</td>
-    <td align="center" valign="middle">LAION-CLAP, T5</td>
-    <td align="center" valign="middle">19.97</td>
-    <td align="center" valign="middle">7.28</td>
-    <td align="center" valign="middle">7.15</td>
-    <td align="center" valign="middle">17.51</td>
-    <td align="center" valign="middle">5.37</td>
-    <td align="center" valign="middle">40.61</td>
-    <td align="center" valign="middle">22.79</td>
-    <td align="center" valign="middle">17.47</td>
-    <td align="center" valign="middle">33.47</td>
-    <td align="center" valign="middle">15.39</td>
-  </tr>
-  <tr>
-    <td align="center" valign="middle">M8</td>
-    <td align="center" valign="middle">(M2D, LAION)-CLAP, BEATs</td>
-    <td align="center" valign="middle">(M2D, LAION)-CLAP, T5</td>
-    <td align="center" valign="middle">39.20</td>
-    <td align="center" valign="middle">18.63</td>
-    <td align="center" valign="middle">15.79</td>
-    <td align="center" valign="middle">34.46</td>
-    <td align="center" valign="middle">13.16</td>
-    <td align="center" valign="middle">41.65</td>
-    <td align="center" valign="middle">24.57</td>
-    <td align="center" valign="middle">19.01</td>
-    <td align="center" valign="middle">35.37</td>
-    <td align="center" valign="middle">v</td>
-  </tr>  
-</table>
-
-
-
-
-
-
-
-
-
-
-
 [![dcase2026_task6_baseline](https://img.shields.io/badge/GitHub-Baseline-black?logo=GitHub)](https://github.com/awkrail/dcase2026_task6_baseline)
 [![Paper](https://img.shields.io/badge/Paper-DCASE-green)](https://dcase.community/documents/challenge2026/technical_reports/DCASE2026_Chunarkar_82_t6.pdf)
 [![ClothoMoment](https://img.shields.io/badge/Features-Clotho--Moment-blue?logo=zenodo)](https://zenodo.org/records/20770460)
@@ -278,6 +118,159 @@ Result (e.g. M2D):
 >                 ('MR-full-mAP@0.5', 36.89),
 >                 ('MR-full-mAP@0.75', 17.5)])
 > ```
+
+<table>
+  <tr>
+    <th rowspan="3" align="center" valign="middle">ID</th>
+    <th rowspan="3" align="center" valign="middle">Audio Encoder</th>
+    <th rowspan="3" align="center" valign="middle">Text Encoder</th>
+    <th colspan="5" align="center" valign="middle">CASTELLA only </th>
+    <th colspan="5" align="center" valign="middle">Two Stage Training <br>PT: Clotho-Moment, FT: CASTELLA</th>
+  </tr>
+  <tr>
+    <td colspan="2" align="center" valign="middle">Recall1 ↑</td>
+    <td colspan="3" align="center" valign="middle">mAP ↑</td>
+    <td colspan="2" align="center" valign="middle">Recall1 ↑</td>
+    <td colspan="3" align="center" valign="middle">mAP ↑</td>
+  </tr>
+  <tr>
+    <td align="center" valign="middle">@0.5</td>
+    <td align="center" valign="middle">@0.7</td>
+    <td align="center" valign="middle">avg</td>
+    <td align="center" valign="middle">@0.5</td>
+    <td align="center" valign="middle">@0.75</td>
+    <td align="center" valign="middle">@0.5</td>
+    <td align="center" valign="middle">@0.7</td>
+    <td align="center" valign="middle">avg</td>
+    <td align="center" valign="middle">@0.5</td>
+    <td align="center" valign="middle">@0.75</td>
+  </tr>
+  <tr>
+    <td align="center" valign="middle">M1</td>
+    <td align="center" valign="middle">Baseline: MSCLAP</td>
+    <td align="center" valign="middle">Baseline: MSCLAP</td>
+    <td align="center" valign="middle">23.16</td>
+    <td align="center" valign="middle">10.32</td>
+    <td align="center" valign="middle">9.11</td>
+    <td align="center" valign="middle">20.34</td>
+    <td align="center" valign="middle">6.96</td>
+    <td align="center" valign="middle">25.61</td>
+    <td align="center" valign="middle">13.59</td>
+    <td align="center" valign="middle">12.06</td>
+    <td align="center" valign="middle">23.60</td>
+    <td align="center" valign="middle">10.72</td>
+  </tr>
+  <tr>
+    <td align="center" valign="middle">M2</td>
+    <td align="center" valign="middle">M2D-CLAP</td>
+    <td align="center" valign="middle">M2D-CLAP</td>
+    <td align="center" valign="middle">26.73</td>
+    <td align="center" valign="middle">12.32</td>
+    <td align="center" valign="middle">10.39</td>
+    <td align="center" valign="middle">22.98</td>
+    <td align="center" valign="middle">8.81</td>
+    <td align="center" valign="middle">43.88</td>
+    <td align="center" valign="middle">25.39</td>
+    <td align="center" valign="middle">19.40</td>
+    <td align="center" valign="middle">36.89</td>
+    <td align="center" valign="middle">17.50</td>
+  </tr>
+  <tr>
+    <td align="center" valign="middle">M3</td>
+    <td align="center" valign="middle">LAION-CLAP</td>
+    <td align="center" valign="middle">LAION-CLAP</td>
+    <td align="center" valign="middle">19.45</td>
+    <td align="center" valign="middle">7.42</td>
+    <td align="center" valign="middle">6.86</td>
+    <td align="center" valign="middle">16.72</td>
+    <td align="center" valign="middle">4.97</td>
+    <td align="center" valign="middle">38.08</td>
+    <td align="center" valign="middle">21.97</td>
+    <td align="center" valign="middle">16.38</td>
+    <td align="center" valign="middle">31.47</td>
+    <td align="center" valign="middle">15.09</td>
+  </tr>
+  <tr>
+    <td align="center" valign="middle">M4</td>
+    <td align="center" valign="middle">BEATs</td>
+    <td align="center" valign="middle">T5</td>
+    <td align="center" valign="middle">18.63</td>
+    <td align="center" valign="middle">8.02</td>
+    <td align="center" valign="middle">7.01</td>
+    <td align="center" valign="middle">15.98</td>
+    <td align="center" valign="middle">5.28</td>
+    <td align="center" valign="middle">34.45</td>
+    <td align="center" valign="middle">19.97</td>
+    <td align="center" valign="middle">15.64</td>
+    <td align="center" valign="middle">29.77</td>
+    <td align="center" valign="middle">14.18</td>
+  </tr>
+  <tr>
+    <td colspan="13" align="center" valign="middle">Ensemble</td>
+  </tr>
+  <tr>
+    <td align="center" valign="middle">M5</td>
+    <td align="center" valign="middle">(M2D, LAION)-CLAP</td>
+    <td align="center" valign="middle">(M2D, LAION)-CLAP</td>
+    <td align="center" valign="middle">30.44</td>
+    <td align="center" valign="middle">13.81</td>
+    <td align="center" valign="middle">11.47</td>
+    <td align="center" valign="middle">25.23</td>
+    <td align="center" valign="middle">9.20</td>
+    <td align="center" valign="middle">43.21</td>
+    <td align="center" valign="middle">26.43</td>
+    <td align="center" valign="middle">19.49</td>
+    <td align="center" valign="middle">35.94</td>
+    <td align="center" valign="middle">17.96</td>
+  </tr>
+  <tr>
+    <td align="center" valign="middle">M6</td>
+    <td align="center" valign="middle">M2D-CLAP, BEATs</td>
+    <td align="center" valign="middle">M2D-CLAP, T5</td>
+    <td align="center" valign="middle">28.14</td>
+    <td align="center" valign="middle">11.73</td>
+    <td align="center" valign="middle">10.80</td>
+    <td align="center" valign="middle">24.22</td>
+    <td align="center" valign="middle">8.71</td>
+    <td align="center" valign="middle">42.09</td>
+    <td align="center" valign="middle">25.17</td>
+    <td align="center" valign="middle">19.00</td>
+    <td align="center" valign="middle">36.47</td>
+    <td align="center" valign="middle">16.69</td>
+  </tr>
+  <tr>
+    <td align="center" valign="middle">M7</td>
+    <td align="center" valign="middle">LAION-CLAP, BEATs</td>
+    <td align="center" valign="middle">LAION-CLAP, T5</td>
+    <td align="center" valign="middle">19.97</td>
+    <td align="center" valign="middle">7.28</td>
+    <td align="center" valign="middle">7.15</td>
+    <td align="center" valign="middle">17.51</td>
+    <td align="center" valign="middle">5.37</td>
+    <td align="center" valign="middle">40.61</td>
+    <td align="center" valign="middle">22.79</td>
+    <td align="center" valign="middle">17.47</td>
+    <td align="center" valign="middle">33.47</td>
+    <td align="center" valign="middle">15.39</td>
+  </tr>
+  <tr>
+    <td align="center" valign="middle">M8</td>
+    <td align="center" valign="middle">(M2D, LAION)-CLAP, BEATs</td>
+    <td align="center" valign="middle">(M2D, LAION)-CLAP, T5</td>
+    <td align="center" valign="middle">39.20</td>
+    <td align="center" valign="middle">18.63</td>
+    <td align="center" valign="middle">15.79</td>
+    <td align="center" valign="middle">34.46</td>
+    <td align="center" valign="middle">13.16</td>
+    <td align="center" valign="middle">41.65</td>
+    <td align="center" valign="middle">24.57</td>
+    <td align="center" valign="middle">19.01</td>
+    <td align="center" valign="middle">35.37</td>
+    <td align="center" valign="middle"> 18.13</td>
+  </tr>  
+</table>
+
+
 
 # ⚠️ Preparation for submission.jsonl
 Extracted Features of evaluation data are not included in the Dataset Download link; users need to extract the data for the respective dataset by themselves for this part.
