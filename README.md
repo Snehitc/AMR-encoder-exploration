@@ -127,7 +127,7 @@ Result (e.g. M2D):
 >                 ('MR-full-mAP@0.75', 17.5)])
 > ```
 
-# Preparation for submission.jsonl
+# ⚠️ Preparation for submission.jsonl
 Extracted Features of evaluation data are not included in the Dataset Download link; users need to extract the data for the respective dataset by themselves for this part.
 > This requires contacting the challenge organiser to get the Evaluation data (audio files).
 
@@ -152,6 +152,10 @@ You can get `submission.jsonl` file under `results` directory. For details, plea
     month = "June",
 }
 ```
+
+## Contributors
+| [Snehit](https://snehitc.github.io/) | [Hamza](https://hmzaah.github.io/) |
+|  :-:   |  :-:  |
 
 ## Reference
 This code is based on [dcase2026_task6_baseline](https://github.com/awkrail/dcase2026_task6_baseline).
