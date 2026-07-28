@@ -116,15 +116,36 @@
     <td align="center" valign="middle">19.00</td>
     <td align="center" valign="middle">36.47</td>
     <td align="center" valign="middle">16.69</td>
+  <tr>
+    <td align="center" valign="middle">M7</td>
+    <td align="center" valign="middle">LAION-CLAP, BEATs</td>
+    <td align="center" valign="middle">LAION-CLAP, T5</td>
+    <td align="center" valign="middle">19.97</td>
+    <td align="center" valign="middle">7.28</td>
+    <td align="center" valign="middle">7.15</td>
+    <td align="center" valign="middle">17.51</td>
+    <td align="center" valign="middle">5.37</td>
+    <td align="center" valign="middle">40.61</td>
+    <td align="center" valign="middle">22.79</td>
+    <td align="center" valign="middle">17.47</td>
+    <td align="center" valign="middle">33.47</td>
+    <td align="center" valign="middle">15.39</td>
   </tr>
-  
-
-
-
-
-
-
-  
+  <tr>
+    <td align="center" valign="middle">M8</td>
+    <td align="center" valign="middle">(M2D, LAION)-CLAP, BEATs</td>
+    <td align="center" valign="middle">(M2D, LAION)-CLAP, T5</td>
+    <td align="center" valign="middle">39.20</td>
+    <td align="center" valign="middle">18.63</td>
+    <td align="center" valign="middle">15.79</td>
+    <td align="center" valign="middle">34.46</td>
+    <td align="center" valign="middle">13.16</td>
+    <td align="center" valign="middle">41.65</td>
+    <td align="center" valign="middle">24.57</td>
+    <td align="center" valign="middle">19.01</td>
+    <td align="center" valign="middle">35.37</td>
+    <td align="center" valign="middle">v</td>
+  </tr>  
 </table>
 
 
