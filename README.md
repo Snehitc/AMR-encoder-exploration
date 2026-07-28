@@ -303,4 +303,4 @@ You can get `submission.jsonl` file under `results` directory. For details, plea
 |  :-:   |  :-:  |
 
 ## Reference
-This code is based on [dcase2026_task6_baseline](https://github.com/awkrail/dcase2026_task6_baseline).
+This code is based on [Baseline: DCASE-2026 (Task6)](https://github.com/awkrail/dcase2026_task6_baseline)
