@@ -13,7 +13,7 @@
 [![Checkpoints](https://img.shields.io/badge/Model-Checkpoints-navy?logo=zenodo)](https://zenodo.org/records/21626882)
 
 # Pipeline
-[Figure of Pipeline]
+![Figure](docs/AMR_pipeline.png)
 
 # Setup
 ## 1. Clone this repository
