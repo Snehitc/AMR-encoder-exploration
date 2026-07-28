@@ -87,6 +87,27 @@
   <tr>
     <td colspan="13" align="center" valign="middle">Ensemble</td>
   </tr>
+  <tr>
+    <td align="center" valign="middle">M5</td>
+    <td align="center" valign="middle">(M2D, LAION)-CLAP</td>
+    <td align="center" valign="middle">(M2D, LAION)-CLAP</td>
+    <td align="center" valign="middle">30.44</td>
+    <td align="center" valign="middle">13.81</td>
+    <td align="center" valign="middle">11.47</td>
+    <td align="center" valign="middle">25.23</td>
+    <td align="center" valign="middle">9.20</td>
+    <td align="center" valign="middle">43.21</td>
+    <td align="center" valign="middle">26.43</td>
+    <td align="center" valign="middle">19.49</td>
+    <td align="center" valign="middle">35.94</td>
+    <td align="center" valign="middle">17.96</td>
+  </tr>
+
+
+
+
+
+
   
 </table>
 
