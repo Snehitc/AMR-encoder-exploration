@@ -84,6 +84,10 @@
     <td align="center" valign="middle">29.77</td>
     <td align="center" valign="middle">14.18</td>
   </tr>
+  <tr>
+    <td rowspan="13" align="center" valign="middle">Ensemble</td>
+  </tr>
+  
 </table>
 
 
