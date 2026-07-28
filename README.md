@@ -169,10 +169,10 @@ Result (e.g. M2D):
     <td align="center" valign="middle">10.39</td>
     <td align="center" valign="middle">22.98</td>
     <td align="center" valign="middle">8.81</td>
-    <td align="center" valign="middle">43.88</td>
+    <td align="center" valign="middle">$${\color{blue}43.88}$$</td>
     <td align="center" valign="middle">25.39</td>
     <td align="center" valign="middle">19.40</td>
-    <td align="center" valign="middle">36.89</td>
+    <td align="center" valign="middle">$${\color{blue}36.89}$$</td>
     <td align="center" valign="middle">17.50</td>
   </tr>
   <tr>
@@ -218,10 +218,10 @@ Result (e.g. M2D):
     <td align="center" valign="middle">25.23</td>
     <td align="center" valign="middle">9.20</td>
     <td align="center" valign="middle">43.21</td>
-    <td align="center" valign="middle">26.43</td>
-    <td align="center" valign="middle">19.49</td>
+    <td align="center" valign="middle">$${\color{blue}26.43}$$</td>
+    <td align="center" valign="middle">$${\color{blue}19.49}$$</td>
     <td align="center" valign="middle">35.94</td>
-    <td align="center" valign="middle">17.96</td>
+    <td align="center" valign="middle">$${\color{blue}17.96}$$</td>
   </tr>
   <tr>
     <td align="center" valign="middle">M6</td>
@@ -257,11 +257,11 @@ Result (e.g. M2D):
     <td align="center" valign="middle">M8</td>
     <td align="center" valign="middle">(M2D, LAION)-CLAP, BEATs</td>
     <td align="center" valign="middle">(M2D, LAION)-CLAP, T5</td>
-    <td align="center" valign="middle">39.20</td>
-    <td align="center" valign="middle">18.63</td>
-    <td align="center" valign="middle">15.79</td>
-    <td align="center" valign="middle">34.46</td>
-    <td align="center" valign="middle">13.16</td>
+    <td align="center" valign="middle">$${\color{blue}39.20}$$</td>
+    <td align="center" valign="middle">$${\color{blue}18.63}$$</td>
+    <td align="center" valign="middle">$${\color{blue}15.79}$$</td>
+    <td align="center" valign="middle">$${\color{blue}34.46}$$</td>
+    <td align="center" valign="middle">$${\color{blue}13.16}$$</td>
     <td align="center" valign="middle">41.65</td>
     <td align="center" valign="middle">24.57</td>
     <td align="center" valign="middle">19.01</td>
