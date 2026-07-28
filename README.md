@@ -102,6 +102,22 @@
     <td align="center" valign="middle">35.94</td>
     <td align="center" valign="middle">17.96</td>
   </tr>
+  <tr>
+    <td align="center" valign="middle">M6</td>
+    <td align="center" valign="middle">M2D-CLAP, BEATs</td>
+    <td align="center" valign="middle">M2D-CLAP, T5</td>
+    <td align="center" valign="middle">28.14</td>
+    <td align="center" valign="middle">11.73</td>
+    <td align="center" valign="middle">10.80</td>
+    <td align="center" valign="middle">24.22</td>
+    <td align="center" valign="middle">8.71</td>
+    <td align="center" valign="middle">42.09</td>
+    <td align="center" valign="middle">25.17</td>
+    <td align="center" valign="middle">19.00</td>
+    <td align="center" valign="middle">36.47</td>
+    <td align="center" valign="middle">16.69</td>
+  </tr>
+  
 
 
 
