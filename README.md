@@ -39,9 +39,36 @@
     <td align="center" valign="middle">23.60</td>
     <td align="center" valign="middle">10.72</td>
   </tr>
-
+  <tr>
+    <td align="center" valign="middle">M2</td>
+    <td align="center" valign="middle">M2D-CLAP</td>
+    <td align="center" valign="middle">M2D-CLAP</td>
+    <td align="center" valign="middle">26.73</td>
+    <td align="center" valign="middle">12.32</td>
+    <td align="center" valign="middle">10.39</td>
+    <td align="center" valign="middle">22.98</td>
+    <td align="center" valign="middle">8.81</td>
+    <td align="center" valign="middle">43.88</td>
+    <td align="center" valign="middle">25.39</td>
+    <td align="center" valign="middle">19.40</td>
+    <td align="center" valign="middle">36.89</td>
+    <td align="center" valign="middle">17.50</td>
+  </tr>
+  <tr>
+    <td align="center" valign="middle">M2</td>
+    <td align="center" valign="middle">M2</td>
+    <td align="center" valign="middle">M2</td>
+    <td align="center" valign="middle">M2</td>
+    <td align="center" valign="middle">M2</td>
+    <td align="center" valign="middle">M2</td>
+    <td align="center" valign="middle">M2</td>
+    <td align="center" valign="middle">M2</td>
+    <td align="center" valign="middle">M2</td>
+    <td align="center" valign="middle">M2</td>
+    <td align="center" valign="middle">M2</td>
+    <td align="center" valign="middle">M2</td>
+  </tr>
 </table>
-
 
 
 
