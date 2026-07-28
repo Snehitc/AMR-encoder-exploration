@@ -1,43 +1,43 @@
 <table>
   <tr>
-    <th rowspan="3">ID</th>
-    <th rowspan="3">Audio Encoder</th>
-    <th rowspan="3">Text Encoder</th>
-    <th colspan="5">CASTELLA only </th>
-    <th colspan="5">Two Stage Training <br>PT: Clotho-Moment, FT: CASTELLA</th>
+    <th rowspan="3" align="center" valign="middle">ID</th>
+    <th rowspan="3" align="center" valign="middle">Audio Encoder</th>
+    <th rowspan="3" align="center" valign="middle">Text Encoder</th>
+    <th colspan="5" align="center" valign="middle">CASTELLA only </th>
+    <th colspan="5" align="center" valign="middle">Two Stage Training <br>PT: Clotho-Moment, FT: CASTELLA</th>
   </tr>
   <tr>
-    <td colspan="2">Recall1 ↑</td>
-    <td colspan="3">mAP ↑</td>
-    <td colspan="2">Recall1 ↑</td>
-    <td colspan="3">mAP ↑</td>
+    <td colspan="2" align="center" valign="middle">Recall1 ↑</td>
+    <td colspan="3" align="center" valign="middle">mAP ↑</td>
+    <td colspan="2" align="center" valign="middle">Recall1 ↑</td>
+    <td colspan="3" align="center" valign="middle">mAP ↑</td>
   </tr>
   <tr>
-    <td>@0.5</td>
-    <td>@0.7</td>
-    <td>avg</td>
-    <td>@0.5</td>
-    <td>@0.75</td>
-    <td>@0.5</td>
-    <td>@0.7</td>
-    <td>avg</td>
-    <td>@0.5</td>
-    <td>@0.75</td>
+    <td align="center" valign="middle">@0.5</td>
+    <td align="center" valign="middle">@0.7</td>
+    <td align="center" valign="middle">avg</td>
+    <td align="center" valign="middle">@0.5</td>
+    <td align="center" valign="middle">@0.75</td>
+    <td align="center" valign="middle">@0.5</td>
+    <td align="center" valign="middle">@0.7</td>
+    <td align="center" valign="middle">avg</td>
+    <td align="center" valign="middle">@0.5</td>
+    <td align="center" valign="middle">@0.75</td>
   </tr>
   <tr>
-    <td>M1</td>
-    <td>Baseline: MSCLAP</td>
-    <td>Baseline: MSCLAP</td>
-    <td>23.16</td>
-    <td>10.32</td>
-    <td>9.11</td>
-    <td>20.34</td>
-    <td>6.96</td>
-    <td>25.61</td>
-    <td>13.59</td>
-    <td>12.06</td>
-    <td>23.60</td>
-    <td>10.72</td>
+    <td align="center" valign="middle">M1</td>
+    <td align="center" valign="middle">Baseline: MSCLAP</td>
+    <td align="center" valign="middle">Baseline: MSCLAP</td>
+    <td align="center" valign="middle">23.16</td>
+    <td align="center" valign="middle">10.32</td>
+    <td align="center" valign="middle">9.11</td>
+    <td align="center" valign="middle">20.34</td>
+    <td align="center" valign="middle">6.96</td>
+    <td align="center" valign="middle">25.61</td>
+    <td align="center" valign="middle">13.59</td>
+    <td align="center" valign="middle">12.06</td>
+    <td align="center" valign="middle">23.60</td>
+    <td align="center" valign="middle">10.72</td>
   </tr>
 
 </table>
