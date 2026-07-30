@@ -290,7 +290,7 @@ You can get `submission.jsonl` file under `results` directory. For details, plea
 # Citation
 > S. Chunarkar, H. Krishnagiri, C. Lee, "Exploring Pretrained Audio-Text Encoders for Audio Moment Retrieval: DCASE 2026 Task 6," DCASE2026 Challenge, Tech. Rep., 2026.
 
-```
+```bibtex
 @techreport{chunarkar2026_t6,
     Author = "Chunarkar, Snehit and Krishnagiri, Hamza and Lee, Chi-Chun",
     title = "Exploring Pretrained Audio-Text Encoders for Audio Moment Retrieval: DCASE 2026 Task 6",
