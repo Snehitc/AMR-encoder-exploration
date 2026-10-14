@@ -288,6 +288,22 @@ You can get `submission.jsonl` file under `results` directory. For details, plea
 
 
 # Citation
+> S. Chunarkar, K. Hamza, C. Lee, "Exploring Pretrained Audio-Text Encoders for Audio Moment Retrieval: DCASE 2026 Task 6," in Proceedings of the 11th Workshop on Detection and Classification of Acoustic Scenes and Events (DCASE 2026), 2026, pp. 241–244.
+
+```bibtex
+@inproceedings{chunarkar2026,
+    author = "Chunarkar, Snehit and Hamza, Krishnagiri and Lee, Chi-Chun",
+    title = "Exploring Pretrained Audio-Text Encoders for Audio Moment Retrieval: DCASE 2026 Task 6",
+    booktitle = "Proceedings of the 11th Workshop on Detection and Classification of Acoustic Scenes and Events (DCASE 2026)",
+    address = "Boston, USA",
+    month = "October",
+    year = "2026",
+    pages = "241--244",
+    isbn = "979-8-234-25461-0",
+    doi = "10.5281/zenodo.22954971"
+}
+```
+
 > S. Chunarkar, H. Krishnagiri, C. Lee, "Exploring Pretrained Audio-Text Encoders for Audio Moment Retrieval: DCASE 2026 Task 6," DCASE2026 Challenge, Tech. Rep., 2026.
 
 ```bibtex
@@ -299,6 +315,10 @@ You can get `submission.jsonl` file under `results` directory. For details, plea
     month = "June",
 }
 ```
+
+
+
+
 
 ## Contributors
 | [Snehit](https://snehitc.github.io/) | [Hamza](https://hmzaah.github.io/) |
