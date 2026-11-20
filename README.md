@@ -4,6 +4,7 @@
 [![CASTELLA](https://img.shields.io/badge/Features-CASTELLA-blue?logo=zenodo)](https://zenodo.org/records/20772071)
 [![Checkpoints](https://img.shields.io/badge/Model-Checkpoints-navy?logo=zenodo)](https://zenodo.org/records/21626882)
 [![dcase2026_task6_baseline](https://img.shields.io/badge/GitHub-Baseline-black?logo=GitHub)](https://github.com/awkrail/dcase2026_task6_baseline)
+[![Video_Presentation](https://img.shields.io/badge/Video-white?logo=google%20drive)](https://drive.google.com/file/d/17Kh-yZWQoHnkyK9VAxJxv0b5IYnZyDsy/view?usp=drive_link)
 
 
 # Pipeline
